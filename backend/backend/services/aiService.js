@@ -246,12 +246,27 @@ function buildFallbackKit(formData) {
     ? formData.idea.split(' ').slice(0, 2).join('') + 'AI'
     : 'StartupForge'
 
-  return {
+  const fallback = {
     businessPlan: {
       executiveSummary: `${name} is an innovative ${formData.industry || 'technology'} startup targeting ${formData.targetAudience || 'general consumers'} with a budget of ${formData.budget || 'TBD'}.`,
+      problemStatement: `Current solutions in the ${formData.industry || 'market'} are inefficient, expensive, or inaccessible to the target audience.`,
+      solutionSummary: `${name} provides a seamless, affordable, and scalable solution that directly addresses these pain points.`,
+      mission: `To empower ${formData.targetAudience || 'users'} with cutting-edge ${formData.industry || 'technology'} solutions.`,
+      vision: `To become the leading ${formData.industry || 'technology'} platform globally by 2030.`,
       problem: `Current solutions in the ${formData.industry || 'market'} are inefficient, expensive, or inaccessible to the target audience.`,
       solution: `${name} provides a seamless, affordable, and scalable solution that directly addresses these pain points.`,
-      marketAnalysis: `The global ${formData.industry || 'technology'} market is valued at $500B and growing at 15% YoY. ${formData.location || 'Global'} presents a significant opportunity.`,
+      marketAnalysis: {
+        targetMarket: formData.targetAudience || 'General consumers',
+        marketSize: 'TAM: $50B | SAM: $5B | SOM: $500M',
+        competitiveAdvantage: 'First-mover advantage in AI automation'
+      },
+      competitorAnalysis: 'Legacy software providers lack modern AI integration and high usability.',
+      swot: {
+        strengths: ['Proprietary AI model', 'Agile development team', 'Low operational overhead'],
+        weaknesses: ['Brand awareness building', 'Initial capital constraints'],
+        opportunities: ['Rapidly expanding market demand', 'Strategic B2B partnerships'],
+        threats: ['Potential new market entrants', 'Regulatory policy changes']
+      },
       revenueModel: `${formData.businessType === 'saas' ? 'Monthly & annual SaaS subscriptions with tiered pricing.' : 'Direct sales, partnerships, and premium service tiers.'}`,
       growthStrategy: 'Phase 1: MVP launch & early adopters. Phase 2: Marketing scale-up & partnerships. Phase 3: Geographic expansion.',
       milestones: [
@@ -265,23 +280,85 @@ function buildFallbackKit(formData) {
     branding: {
       name,
       tagline: `Innovating ${formData.industry || 'the future'}, one step at a time.`,
+      brandStory: `Founded with a mission to revolutionize ${formData.industry || 'the market'}, ${name} brings together AI technology and user-centric design.`,
       mission: `To empower ${formData.targetAudience || 'users'} with cutting-edge ${formData.industry || 'technology'} solutions.`,
+      coreValues: ['Innovation', 'Transparency', 'Customer First', 'Scalability'],
       values: ['Innovation', 'Transparency', 'Customer First', 'Scalability'],
+      primaryColors: [
+        { name: 'Indigo Blue', hex: '#4F46E5' },
+        { name: 'Royal Blue', hex: '#2563EB' },
+        { name: 'Slate Navy', hex: '#0F172A' }
+      ],
+      secondaryColors: [
+        { name: 'Amber Gold', hex: '#F59E0B' },
+        { name: 'Emerald Green', hex: '#10B981' },
+        { name: 'Muted Slate', hex: '#64748B' }
+      ],
       colors: { primary: '#6366F1', secondary: '#8B5CF6', accent: '#F59E0B' },
-      typography: 'Inter for UI, Merriweather for headings',
+      brandVoice: 'Authoritative, clear, and empowering',
+      brandPersonality: 'Innovative, trustworthy, and visionary',
+      targetEmotion: 'Confidence, security, and excitement',
+      typography: {
+        headingFont: 'Inter / Outfit (Bold Sans-Serif)',
+        bodyFont: 'Plus Jakarta Sans (Clean Legible)',
+        recommendation: 'Use Inter for bold headlines and Plus Jakarta Sans for body copy.'
+      },
     },
-    website: {
+    websiteContent: {
+      hero: {
+        title: `The Future of ${formData.industry || 'Business'} Starts Here`,
+        subtitle: `${name} helps you ${formData.idea || 'achieve your goals'} faster than ever before.`,
+        ctaText: 'Get Started Free'
+      },
       heroHeadline: `The Future of ${formData.industry || 'Business'} Starts Here`,
       heroSubtitle: `${name} helps you ${formData.idea || 'achieve your goals'} faster than ever before.`,
+      about: `Founded with a mission to transform ${formData.industry || 'the industry'}, ${name} brings together expert engineering and bold vision.`,
+      aboutSection: `Founded with a mission to transform ${formData.industry || 'the industry'}, ${name} brings together expert engineering and bold vision.`,
+      services: [
+        { title: 'AI-Powered Automation', desc: 'Leverage intelligent automation to stay ahead of competition.' },
+        { title: 'Lightning Performance', desc: 'Built for speed and reliability at scale.' },
+        { title: 'Enterprise Security', desc: 'Bank-grade encryption baked in from day one.' }
+      ],
       features: [
         { title: 'AI-Powered', description: 'Leverage intelligent automation to stay ahead of the competition.' },
         { title: 'Lightning Fast', description: 'Built for speed and reliability at any scale.' },
         { title: 'Secure by Default', description: 'Enterprise-grade security baked in from day one.' },
       ],
-      cta: 'Get Started Free',
-      aboutSection: `Founded with a mission to transform ${formData.industry || 'the industry'}, ${name} brings together expert engineering and bold vision.`,
+      cta: {
+        heading: 'Ready to get started?',
+        subheading: 'Join thousands of early adopters building with us.',
+        buttonLabel: 'Start Free Trial'
+      },
+      testimonials: [
+        { text: 'This platform completely transformed our launch timeline!', name: 'Sarah Jenkins', role: 'Founder & CEO' }
+      ],
+      contact: { email: 'contact@startupforge.io' },
+      footerContent: '© 2026 StartupForge. All rights reserved.'
     },
     marketing: {
+      targetAudience: formData.targetAudience || 'General consumers and SMBs',
+      marketingStrategy: 'Inbound content marketing combined with targeted social ad campaigns.',
+      socialMedia: [
+        'LinkedIn: Post 3x weekly case studies and industry statistics',
+        'Twitter/X: Daily threads on product updates and startup tips',
+        'Instagram: Visual carousels and founder storytelling'
+      ],
+      emailCampaign: [
+        'Welcome Drip: Immediate onboard email with demo video',
+        'Value Pitch: Day 3 email showcasing top 3 feature benefits',
+        'Special Offer: Day 7 email with 20% discount on annual plan'
+      ],
+      contentStrategy: 'SEO-driven technical blogs, video tutorials, and founder interview podcasts.',
+      seoStrategy: 'Target long-tail transactional keywords with high buying intent.',
+      growthHacks: [
+        'Product Hunt launch with custom referral bonus',
+        'Direct LinkedIn outreach to top 100 industry consultants',
+        'Free micro-tool widget for viral backlink generation'
+      ],
+      launchPlan: '30-day pre-launch waitlist push followed by public v1 launch.',
+      customerAcquisition: 'Organic search (SEO), direct sales, and influencer partnerships.',
+      kpis: ['Monthly Active Users (MAU)', 'Customer Acquisition Cost (CAC)', 'Monthly Recurring Revenue (MRR)'],
+      timeline: 'Months 1-3: MVP Launch & Beta. Months 4-6: Scaling acquisition.',
       channels: [
         { name: 'Social Media', strategy: 'Weekly content on LinkedIn, Instagram & X targeting early adopters.' },
         { name: 'Content Marketing', strategy: 'SEO-driven blog and video tutorials to build organic traffic.' },
@@ -381,37 +458,18 @@ function buildFallbackKit(formData) {
           priority: 'Medium',
           status: 'Pending',
         },
-        {
-          id: 'startup_india',
-          title: 'Startup India DPIIT Recognition',
-          reason: 'Access to 80IAC tax exemption for 3 consecutive years and fast-tracked patent applications.',
-          requiredDocs: ['Incorporation Certificate', 'Writeup on Innovation', 'Pitch Deck Link'],
-          estimatedFee: '₹0 (Free Portal)',
-          processingTime: '10 - 15 Business Days',
-          priority: 'Medium',
-          status: 'Pending',
-        },
-        {
-          id: 'shop_act',
-          title: 'Shop & Establishment Act',
-          reason: 'Local municipal registration required to operate commercial premises and employ staff.',
-          requiredDocs: ['Rent Agreement & Landlord NOC', 'PAN Card', 'Employee Count List'],
-          estimatedFee: '₹500 - ₹2,500',
-          processingTime: '5 - 10 Business Days',
-          priority: 'High',
-          status: 'Pending',
-        },
       ],
       governmentRegistrations: [
         { title: 'GST Registration', status: 'Pending', priority: 'High', fee: '₹0', time: '3-7 Days' },
-        { title: 'FSSAI License', status: 'Pending', priority: 'High', fee: '₹100 - ₹7,500', time: '7-30 Days' },
         { title: 'MSME Registration', status: 'Pending', priority: 'Medium', fee: '₹0', time: '1-2 Days' },
-        { title: 'Startup India DPIIT', status: 'Pending', priority: 'Medium', fee: '₹0', time: '10-15 Days' },
+      ],
+      registrations: [
+        { name: 'Tax ID / GST Registration', reason: 'Tax compliance for billing', priority: 'High' },
+        { name: 'Trademark Registration', reason: 'Brand protection', priority: "Medium" }
       ],
       licenses: [
         'Shop & Establishment Registration',
         'Local Municipal Health & Trade License',
-        'Fire Safety NOC (if premises > 50 sq m)',
       ],
       legalDocs: [
         'Terms of Service & User Agreement',
@@ -422,10 +480,9 @@ function buildFallbackKit(formData) {
       registrationSteps: [
         'Incorporate Business Entity (Pvt Ltd / LLP / OPC)',
         'Apply for Company PAN & Corporate Net Banking',
-        'Obtain GST & Industry-Specific Registrations (FSSAI/MSME)',
-        'Register for Startup India Recognition & Trademarks',
+        'Obtain GST & Industry-Specific Registrations',
       ],
-      legalRecommendations: 'Ensure FSSAI certification and GST registration are completed prior to commercial product launch.',
+      legalRecommendations: 'Ensure GST registration and legal entity formation are completed prior to launch.',
     },
     pitchDeck: {
       problem: `${formData.targetAudience || 'Users'} in the ${formData.industry || 'market'} face significant challenges with existing solutions that are too slow, costly, or complex.`,
@@ -437,6 +494,10 @@ function buildFallbackKit(formData) {
       ask: `Raising $500K seed round to fund 12 months of product development, team growth, and initial marketing.`,
     },
   }
+
+  fallback.website = fallback.websiteContent
+
+  return fallback
 }
 
 /**
