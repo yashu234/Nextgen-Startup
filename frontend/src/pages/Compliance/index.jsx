@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Shield, FileCheck, ArrowLeft, Download, RefreshCw, AlertCircle, FileText,
@@ -40,18 +40,43 @@ export default function Compliance() {
   const [newIssueDate, setNewIssueDate] = useState('')
   const [newExpiryDate, setNewExpiryDate] = useState('')
 
+  // Sync licenses from AI kit if available
+  useEffect(() => {
+    if (result?.compliance?.licenses?.length) {
+      const formatted = result.compliance.licenses.map((lic, idx) => {
+        if (typeof lic === 'string') {
+          return {
+            id: idx + 1,
+            name: lic,
+            issueDate: '2026-01-01',
+            expiryDate: '2027-01-01',
+            status: 'Active',
+          }
+        }
+        return {
+          id: lic.id || idx + 1,
+          name: lic.name || lic.title,
+          issueDate: lic.issueDate || '2026-01-01',
+          expiryDate: lic.expiryDate || '2027-01-01',
+          status: lic.status || 'Active',
+        }
+      })
+      setLicenses(formatted)
+    }
+  }, [result])
+
   // Dynamic Registrations from AI kit or mock fallback
   const registrationsList = useMemo(() => {
     if (result?.compliance?.checklist?.length) {
       return result.compliance.checklist.map((item, idx) => ({
         id: item.id || `reg_${idx}`,
-        name: item.title || item.name,
-        reason: item.reason || 'Required statutory registration',
-        docs: item.requiredDocs || ['PAN Card', 'Address Proof'],
-        govtFee: item.estimatedFee || 'Free',
-        time: item.processingTime || '3-7 Days',
-        priority: item.priority || 'High',
-        portal: 'Official Govt Portal',
+        name: item.title || item.name || 'Statutory Registration',
+        reason: item.reason || 'Mandatory legal and tax compliance requirement for commercial operation.',
+        documents: item.requiredDocs || item.documents || ['PAN Card of Founder/Entity', 'Incorporation Certificate', 'Address Proof'],
+        govFee: item.estimatedFee || item.govFee || '₹0 (Govt Fee)',
+        processingTime: item.processingTime || item.time || '3-7 Business Days',
+        priority: item.priority || 'Required',
+        website: 'https://www.gst.gov.in',
         category: 'Mandatory',
       }))
     }
