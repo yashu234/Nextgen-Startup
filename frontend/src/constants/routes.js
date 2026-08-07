@@ -15,5 +15,6 @@ export const ROUTES = {
   HISTORY: '/history',
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  NEWS: '/news',
   NOT_FOUND: '*',
 }

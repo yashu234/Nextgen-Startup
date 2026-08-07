@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Sparkles, FileText, Palette, Globe,
-  Megaphone, TrendingUp, Shield, Presentation, History, Settings
+  Megaphone, TrendingUp, Shield, Presentation, History, Settings, Newspaper
 } from 'lucide-react'
 import { ROUTES } from '../../constants/routes'
 
@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { label: 'Finance', path: ROUTES.FINANCE, icon: TrendingUp },
   { label: 'Compliance', path: ROUTES.COMPLIANCE, icon: Shield },
   { label: 'Pitch Deck', path: ROUTES.PITCH_DECK, icon: Presentation },
+  { label: 'AI News & Intel', path: ROUTES.NEWS, icon: Newspaper },
   { divider: true },
   { label: 'History', path: ROUTES.HISTORY, icon: History },
   { label: 'Settings', path: ROUTES.SETTINGS, icon: Settings },
