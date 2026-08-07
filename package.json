@@ -1,0 +1,14 @@
+{
+  "name": "ai-engine",
+  "version": "1.0.0",
+  "description": "Modular AI engine for startup generation using Google Gemini in JavaScript",
+  "main": "src/aiService.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "latest",
+    "dotenv": "^16.4.5"
+  }
+}

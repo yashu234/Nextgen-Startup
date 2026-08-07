@@ -1,9 +1,10 @@
-node_modules
-.DS_Store
-dist
-dist-ssr
-*.local
+node_modules/
 .env
 .env.*
-.vscode
-.idea
+.DS_Store
+dist/
+dist-ssr/
+*.local
+.vscode/
+.idea/
+
