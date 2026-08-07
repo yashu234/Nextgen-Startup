@@ -149,4 +149,34 @@ export function ProfitBarChart({ data = [] }) {
   )
 }
 
+// ─── Investment Allocation Chart ──────────────────────────────
+export function InvestmentAllocationChart({ data = [] }) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+        <XAxis type="number" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+        <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} width={120} />
+        <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px' }} formatter={(value) => [`$${value?.toLocaleString()}`, 'Allocation']} cursor={{ fill: '#f8fafc' }} />
+        <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} name="Allocation" />
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
+// ─── Growth Projection Chart ─────────────────────────────────
+export function GrowthProjectionChart({ data = [] }) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+        <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+        <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px' }} formatter={(value) => [`$${value?.toLocaleString()}`, undefined]} cursor={{ fill: '#f8fafc' }} />
+        <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Revenue" />
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
 export default RevenueExpenseChart

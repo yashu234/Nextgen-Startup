@@ -6,6 +6,8 @@ import {
   BarChart3, Percent, ShieldAlert, ArrowUpRight, ShieldCheck, Wallet
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
+import { useToast } from '../../context/ToastContext'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
@@ -19,7 +21,21 @@ import { INITIAL_FINANCE_DATA } from '../../data/mockModuleData'
 
 export default function Finance() {
   const { result, generateKit, isGenerating, error } = useStartup()
+  const { toast } = useToast()
   const navigate = useNavigate()
+
+  function handleExportPDF() {
+    if (!result) {
+      toast?.error('No active startup kit loaded to export.')
+      return
+    }
+    try {
+      generateStartupKitPDF(result)
+      toast?.success('Financial Report PDF exported!')
+    } catch (err) {
+      toast?.error('Export failed: ' + err.message)
+    }
+  }
 
   // Active section tab: 'overview', 'estimator', 'forecast', 'pnl', 'breakeven', 'roi', 'advisor'
   const [activeTab, setActiveTab] = useState('overview')
@@ -290,7 +306,7 @@ export default function Finance() {
             <Button variant="outline" size="sm" icon={RefreshCw} loading={isGenerating} onClick={generateKit}>
               Regenerate
             </Button>
-            <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
+            <Button variant="primary" size="sm" icon={Download} onClick={handleExportPDF}>
               Export Projections
             </Button>
           </div>
