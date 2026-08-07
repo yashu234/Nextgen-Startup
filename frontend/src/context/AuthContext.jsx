@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
 import { STORAGE_KEYS } from '../constants'
+import authService from '../services/authService'
 
 const AuthContext = createContext(null)
 
@@ -11,21 +12,17 @@ const STORAGE_TYPE = {
 
 function readStoredAuth() {
   try {
-    const localToken = localStorage.getItem(STORAGE_KEYS.TOKEN)
     const localUser = localStorage.getItem(STORAGE_KEYS.USER)
-    if (localToken && localUser) {
+    if (localUser) {
       return {
-        token: localToken,
         user: JSON.parse(localUser),
         storageType: STORAGE_TYPE.LOCAL,
       }
     }
 
-    const sessionToken = sessionStorage.getItem(STORAGE_KEYS.TOKEN)
     const sessionUser = sessionStorage.getItem(STORAGE_KEYS.USER)
-    if (sessionToken && sessionUser) {
+    if (sessionUser) {
       return {
-        token: sessionToken,
         user: JSON.parse(sessionUser),
         storageType: STORAGE_TYPE.SESSION,
       }
@@ -34,13 +31,11 @@ function readStoredAuth() {
     /* ignore corrupted storage */
   }
 
-  return { token: null, user: null, storageType: null }
+  return { user: null, storageType: null }
 }
 
 function clearStoredAuth() {
-  localStorage.removeItem(STORAGE_KEYS.TOKEN)
   localStorage.removeItem(STORAGE_KEYS.USER)
-  sessionStorage.removeItem(STORAGE_KEYS.TOKEN)
   sessionStorage.removeItem(STORAGE_KEYS.USER)
 }
 
@@ -52,7 +47,6 @@ const storedAuth = readStoredAuth()
 
 const initialState = {
   user: storedAuth.user,
-  token: storedAuth.token,
   storageType: storedAuth.storageType,
   isLoading: false,
 }
@@ -66,7 +60,6 @@ function authReducer(state, action) {
       return {
         ...state,
         user: action.payload.user,
-        token: action.payload.token,
         storageType: action.payload.storageType,
         isLoading: false,
       }
@@ -78,7 +71,7 @@ function authReducer(state, action) {
       return { ...state, user: { ...state.user, ...action.payload } }
 
     case 'LOGOUT':
-      return { user: null, token: null, storageType: null, isLoading: false }
+      return { user: null, storageType: null, isLoading: false }
 
     default:
       return state
@@ -90,10 +83,13 @@ export function AuthProvider({ children }) {
 
   // Keep context state in sync when logout happens outside React (e.g. API interceptor)
   useEffect(() => {
-    const handleLogoutEvent = () => dispatch({ type: 'LOGOUT' })
+    const handleLogoutEvent = () => {
+      authService.logout() // Tell backend to clear cookies
+      dispatch({ type: 'LOGOUT' })
+    }
 
     const handleStorage = (e) => {
-      if (e.key === STORAGE_KEYS.TOKEN && e.newValue === null) {
+      if (e.key === STORAGE_KEYS.USER && !e.newValue) {
         dispatch({ type: 'LOGOUT' })
       }
     }
@@ -106,18 +102,18 @@ export function AuthProvider({ children }) {
     }
   }, [dispatch])
 
-  const login = useCallback((token, user, rememberMe = true) => {
+  const login = useCallback((user, rememberMe = true) => {
     clearStoredAuth()
     const storageType = rememberMe ? STORAGE_TYPE.LOCAL : STORAGE_TYPE.SESSION
     const authStorage = getAuthStorage(storageType)
-    authStorage.setItem(STORAGE_KEYS.TOKEN, token)
     authStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user))
-    dispatch({ type: 'AUTH_SUCCESS', payload: { token, user, storageType } })
+    dispatch({ type: 'AUTH_SUCCESS', payload: { user, storageType } })
   }, [])
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     clearStoredAuth()
     localStorage.removeItem(STORAGE_KEYS.LAST_RESULT)
+    await authService.logout() // Hit backend to clear cookies
     dispatch({ type: 'LOGOUT' })
   }, [])
 
@@ -134,8 +130,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user: state.user,
-    token: state.token,
-    isAuthenticated: !!state.token && !!state.user,
+    isAuthenticated: !!state.user,
     isLoading: state.isLoading,
     storageType: state.storageType,
     login,

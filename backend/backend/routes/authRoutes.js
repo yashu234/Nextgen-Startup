@@ -7,6 +7,8 @@ const {
   getMe,
   updateMe,
   changePassword,
+  logout,
+  refresh,
 } = require('../controllers/authController')
 
 const { protect } = require('../middleware/authMiddleware')
@@ -51,6 +53,10 @@ router.post(
   validateEmail,
   login
 )
+
+router.post('/logout', logout)
+
+router.get('/refresh', refresh)
 
 // ── Protected Routes ──────────────────────────────────────────────────────────
 

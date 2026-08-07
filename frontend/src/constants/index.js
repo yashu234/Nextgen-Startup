@@ -61,6 +61,8 @@ export const API_ENDPOINTS = {
   SIGNUP: '/auth/signup',
   ME: '/auth/me',
   CHANGE_PASSWORD: '/auth/change-password',
+  LOGOUT: '/auth/logout',
+  REFRESH: '/auth/refresh',
 
   // Startup generation
   GENERATE: '/generate',
@@ -72,7 +74,6 @@ export const API_ENDPOINTS = {
 
 // Local storage keys — prevents typos across the codebase
 export const STORAGE_KEYS = {
-  TOKEN: 'sf_token',
   USER: 'sf_user',
   LAST_RESULT: 'sf_last_result',
 }

@@ -8,14 +8,8 @@ const BASE_URL = (() => {
   throw new Error('Missing VITE_API_URL. Set the production API base URL before deploying Startup Forge.')
 })()
 
-function getStoredToken() {
-  return localStorage.getItem(STORAGE_KEYS.TOKEN) || sessionStorage.getItem(STORAGE_KEYS.TOKEN)
-}
-
 function clearStoredAuth() {
-  localStorage.removeItem(STORAGE_KEYS.TOKEN)
   localStorage.removeItem(STORAGE_KEYS.USER)
-  sessionStorage.removeItem(STORAGE_KEYS.TOKEN)
   sessionStorage.removeItem(STORAGE_KEYS.USER)
 }
 
@@ -23,46 +17,65 @@ function clearStoredAuth() {
 const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
+  withCredentials: true, // Crucial for sending/receiving HttpOnly cookies
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 })
 
-// Request interceptor: Attach JWT token & standard headers automatically
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = getStoredToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    if (import.meta.env.DEV) {
-      console.error('[API Request Error]', error)
-    }
-    return Promise.reject(error)
-  }
-)
+let isRefreshing = false
+let failedQueue = []
 
-// Response interceptor: Handle status codes (200, 201, 204, 400, 401, 403, 404, 429, 500)
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  failedQueue = []
+}
+
+// Response interceptor: Handle status codes and Refresh Token rotation
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config
     const status = error.response?.status
 
-    if (status === 401) {
-      // Token expired or invalid — clear session and notify app to logout
-      clearStoredAuth()
-      try {
-        // notify any listeners (AuthContext) about logout so in-memory state stays in sync
-        window.dispatchEvent(new Event('sf_logout'))
-      } catch {
-        /* ignore */
+    if (status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise(function(resolve, reject) {
+          failedQueue.push({ resolve, reject })
+        }).then(() => {
+          return apiClient(originalRequest)
+        }).catch(err => Promise.reject(err))
       }
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        // Attempt to hit the refresh endpoint
+        await axios.get(`${BASE_URL}/auth/refresh`, { withCredentials: true })
+        isRefreshing = false
+        processQueue(null)
+        // Retry original request automatically
+        return apiClient(originalRequest)
+      } catch (err) {
+        isRefreshing = false
+        processQueue(err, null)
+        // Refresh failed, meaning session is truly dead
+        clearStoredAuth()
+        try {
+          window.dispatchEvent(new Event('sf_logout'))
+        } catch {}
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
+        return Promise.reject(err)
       }
     } else if (import.meta.env.DEV) {
       console.error(`[API Error ${status || 'Network'}]`, error.response?.data || error.message)

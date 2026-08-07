@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit')
 const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
+const cookieParser = require('cookie-parser')
 
 const { notFound, errorHandler } = require('./middleware/errorMiddleware')
 
@@ -51,6 +52,8 @@ app.use(
 app.use(express.json())
 // Parse URL-encoded form bodies (application/x-www-form-urlencoded)
 app.use(express.urlencoded({ extended: false }))
+// Parse Cookies
+app.use(cookieParser())
 
 // ─── Data Sanitization & Rate Limiting ─────────────────────────────────────────
 // Rate Limiting

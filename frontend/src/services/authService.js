@@ -39,6 +39,14 @@ const authService = {
     }
   },
 
+  async logout() {
+    try {
+      await apiClient.post(API_ENDPOINTS.LOGOUT)
+    } catch (error) {
+      console.warn('Logout request failed', error)
+    }
+  },
+
   async getProfile() {
     try {
       const response = await apiClient.get(API_ENDPOINTS.ME)

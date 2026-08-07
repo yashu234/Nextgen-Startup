@@ -15,14 +15,16 @@ const { errorResponse } = require('../utils/apiResponse')
  */
 const protect = async (req, res, next) => {
   try {
-    // Extract Bearer token from the Authorization header
-    const authHeader = req.headers.authorization
+    // Extract token from cookies first, fallback to Authorization header
+    let token = req.cookies?.accessToken
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return errorResponse(res, 'Not authorised. No token provided.', 401)
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1]
     }
 
-    const token = authHeader.split(' ')[1]
+    if (!token) {
+      return errorResponse(res, 'Not authorised. No token provided.', 401)
+    }
 
     // Verify the token — throws if expired or tampered
     const decoded = jwt.verify(token, process.env.JWT_SECRET)

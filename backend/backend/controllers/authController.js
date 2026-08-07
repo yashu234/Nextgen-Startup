@@ -1,5 +1,5 @@
 const User = require('../models/User')
-const generateToken = require('../utils/generateToken')
+const { generateAccessToken, generateRefreshToken, setTokenCookies, clearTokenCookies } = require('../utils/generateToken')
 const { successResponse, errorResponse } = require('../utils/apiResponse')
 
 /**
@@ -31,14 +31,16 @@ const signup = async (req, res, next) => {
     // Create and save user — password is hashed by the pre-save hook in User model
     const user = await User.create({ name, email, password })
 
-    // Generate JWT token for immediate login after signup
-    const token = generateToken(user._id)
+    // Generate JWT tokens for immediate login after signup
+    const accessToken = generateAccessToken(user._id)
+    const refreshToken = generateRefreshToken(user._id)
+
+    setTokenCookies(res, accessToken, refreshToken)
 
     return successResponse(
       res,
       'Account created successfully.',
       {
-        token,
         user: user.toPublicJSON(),
       },
       201
@@ -72,14 +74,16 @@ const login = async (req, res, next) => {
       return errorResponse(res, 'Invalid email or password.', 401)
     }
 
-    // Generate JWT token
-    const token = generateToken(user._id)
+    // Generate JWT tokens
+    const accessToken = generateAccessToken(user._id)
+    const refreshToken = generateRefreshToken(user._id)
+
+    setTokenCookies(res, accessToken, refreshToken)
 
     return successResponse(
       res,
       'Login successful.',
       {
-        token,
         user: user.toPublicJSON(),
       },
       200
@@ -191,4 +195,57 @@ const changePassword = async (req, res, next) => {
   }
 }
 
-module.exports = { signup, login, getMe, updateMe, changePassword }
+// ─────────────────────────────────────────────────────────────────────────────
+// @route   POST /api/auth/logout
+// @access  Public
+// @desc    Clear cookies to logout user
+// ─────────────────────────────────────────────────────────────────────────────
+const logout = async (req, res, next) => {
+  try {
+    clearTokenCookies(res)
+    return successResponse(res, 'Logged out successfully.')
+  } catch (error) {
+    next(error)
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// @route   GET /api/auth/refresh
+// @access  Public (requires valid refreshToken cookie)
+// @desc    Issue a new access token
+// ─────────────────────────────────────────────────────────────────────────────
+const refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken
+    if (!refreshToken) {
+      return errorResponse(res, 'No refresh token provided', 401)
+    }
+
+    const jwt = require('jsonwebtoken')
+    jwt.verify(refreshToken, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return errorResponse(res, 'Invalid or expired refresh token', 401)
+      }
+      
+      const user = await User.findById(decoded.id)
+      if (!user) {
+        return errorResponse(res, 'User not found', 404)
+      }
+
+      const accessToken = generateAccessToken(user._id)
+      const isProd = process.env.NODE_ENV === 'production'
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        maxAge: 15 * 60 * 1000 // 15 minutes
+      })
+
+      return successResponse(res, 'Token refreshed successfully')
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { signup, login, getMe, updateMe, changePassword, logout, refresh }
