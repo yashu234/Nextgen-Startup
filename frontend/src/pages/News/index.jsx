@@ -4,6 +4,7 @@ import {
   Newspaper, Search, Filter, Bookmark, CheckCircle2, Share2, Download,
   TrendingUp, DollarSign, Building2, ShieldAlert, Sparkles, ExternalLink, Mail, Clock
 } from 'lucide-react'
+import { useStartup } from '../../context/StartupContext'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
@@ -12,9 +13,12 @@ import { NEWS_INTELLIGENCE_DATA } from '../../data/mockModuleData'
 import { formatCurrency } from '../../utils/formatters'
 
 export default function NewsIntelligence() {
+  const { result } = useStartup()
+  const activeIndustry = result?.formData?.industry || 'All'
+
   const [activeTab, setActiveTab] = useState('all') // 'all', 'trends', 'funding', 'competitors', 'regulations', 'saved', 'newsletter'
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedIndustry, setSelectedIndustry] = useState('All')
+  const [selectedIndustry, setSelectedIndustry] = useState(activeIndustry)
   const [selectedImpact, setSelectedImpact] = useState('All')
 
   // Saved/Bookmarked news state

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, DollarSign, PieChart as PieChartIcon, ArrowLeft, Download, RefreshCw,
@@ -41,6 +41,30 @@ export default function Finance() {
   ])
   const [chatInput, setChatInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+
+  // Sync state with AI generated finance kit if available
+  useEffect(() => {
+    if (result?.finance) {
+      const fin = result.finance
+      if (fin.pricePerUnit || fin.monthlyCustomers) {
+        setForecastInputs((prev) => ({
+          ...prev,
+          productPrice: fin.pricePerUnit || prev.productPrice,
+          initialCustomers: fin.monthlyCustomers || prev.initialCustomers,
+          monthlyGrowthRate: fin.monthlyGrowthRate || prev.monthlyGrowthRate,
+        }))
+      }
+      if (fin.expenses || fin.monthlyExpenses) {
+        const exp = Number(fin.expenses || fin.monthlyExpenses) || 120000
+        setMonthlyCosts({
+          salaries: Math.round(exp * 0.5),
+          marketing: Math.round(exp * 0.25),
+          servers: Math.round(exp * 0.15),
+          officeRent: Math.round(exp * 0.1),
+        })
+      }
+    }
+  }, [result])
 
   // Calculations for Cost Estimator
   const totalOneTime = useMemo(() => {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Presentation, ChevronLeft, ChevronRight, Download, Maximize2, Minimize2, ArrowLeft,
@@ -27,6 +27,96 @@ export default function PitchDeck() {
   const [isEditingSlide, setIsEditingSlide] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editBulletsText, setEditBulletsText] = useState('')
+
+  // Sync slides with AI generated pitch deck & branding kit
+  useEffect(() => {
+    if (result?.pitchDeck || result?.branding) {
+      const pd = result.pitchDeck || {}
+      const brandName = result.branding?.name || 'Your Startup'
+      const tagline = result.branding?.tagline || 'Next Generation Innovation'
+
+      const customSlides = [
+        {
+          id: 1,
+          title: brandName,
+          subtitle: tagline,
+          bullets: [
+            'Empowering founders with AI automation',
+            'Streamlining launch, branding & compliance',
+            'Built for high scalability and rapid market adoption'
+          ],
+          speakerNotes: `Welcome to ${brandName}. Today we present our vision for automating startup launch kits.`
+        },
+        {
+          id: 2,
+          title: 'The Problem',
+          subtitle: 'Current market pain points',
+          bullets: [
+            pd.problem || 'Founders spend months on manual legal, branding, and business plan creation.',
+            'High consulting fees and slow iteration cycles.',
+            'Fragmented tools creating friction.'
+          ],
+          speakerNotes: 'Highlight the severe pain points experienced by early stage founders.'
+        },
+        {
+          id: 3,
+          title: 'The Solution',
+          subtitle: 'Our proprietary platform',
+          bullets: [
+            pd.solution || '1-click AI engine generating institutional-grade launch assets.',
+            'Automated compliance, financial modeling & branding.',
+            'Massive time & cost savings for founders.'
+          ],
+          speakerNotes: 'Explain how our product solves the core problem effortlessly.'
+        },
+        {
+          id: 4,
+          title: 'Market Opportunity',
+          subtitle: 'TAM / SAM / SOM Breakdown',
+          bullets: [
+            pd.market || 'Total Addressable Market: $50B global startup ecosystem.',
+            'Serviceable Market: $5B digital venture creation software.',
+            'Targeting $500M in SAM over 3 years.'
+          ],
+          speakerNotes: 'Walk investors through market size calculations and growth metrics.'
+        },
+        {
+          id: 5,
+          title: 'Business Model',
+          subtitle: 'Monetization & Unit Economics',
+          bullets: [
+            pd.businessModel || 'Tiered SaaS Subscriptions ($29/mo Starter, $99/mo Pro).',
+            'High gross margins (78%+) with recurring revenue.',
+            'Negative net churn potential.'
+          ],
+          speakerNotes: 'Detail revenue streams, pricing tiers, and margin projections.'
+        },
+        {
+          id: 6,
+          title: 'Traction & Milestones',
+          subtitle: 'Key execution metrics',
+          bullets: [
+            pd.traction || 'Pre-launch waitlist of 500+ founders.',
+            'Completed MVP testing with 95% satisfaction.',
+            'Partnerships established with top incubator networks.'
+          ],
+          speakerNotes: 'Demonstrate early momentum and key accomplishments.'
+        },
+        {
+          id: 7,
+          title: 'The Ask',
+          subtitle: 'Investment Round',
+          bullets: [
+            pd.ask || 'Raising $500,000 Seed Round.',
+            '12-18 months runway to reach $1M ARR.',
+            'Allocation: 50% Engineering, 30% Marketing, 20% Ops.'
+          ],
+          speakerNotes: 'State funding requirement clearly along with milestone goals.'
+        }
+      ]
+      setSlides(customSlides)
+    }
+  }, [result])
 
   // 2. Storytelling Coach State
   const [storyInputText, setStoryInputText] = useState('We built a web app that helps founders with finance and compliance.')

@@ -40,15 +40,33 @@ export default function Compliance() {
   const [newIssueDate, setNewIssueDate] = useState('')
   const [newExpiryDate, setNewExpiryDate] = useState('')
 
+  // Dynamic Registrations from AI kit or mock fallback
+  const registrationsList = useMemo(() => {
+    if (result?.compliance?.checklist?.length) {
+      return result.compliance.checklist.map((item, idx) => ({
+        id: item.id || `reg_${idx}`,
+        name: item.title || item.name,
+        reason: item.reason || 'Required statutory registration',
+        docs: item.requiredDocs || ['PAN Card', 'Address Proof'],
+        govtFee: item.estimatedFee || 'Free',
+        time: item.processingTime || '3-7 Days',
+        priority: item.priority || 'High',
+        portal: 'Official Govt Portal',
+        category: 'Mandatory',
+      }))
+    }
+    return COMPLIANCE_DATA.registrations
+  }, [result])
+
   // Filtered Registrations
   const filteredRegistrations = useMemo(() => {
-    return COMPLIANCE_DATA.registrations.filter((reg) => {
-      const matchesSearch = reg.name.toLowerCase().includes(regSearch.toLowerCase()) ||
-        reg.reason.toLowerCase().includes(regSearch.toLowerCase())
+    return registrationsList.filter((reg) => {
+      const matchesSearch = (reg.name || '').toLowerCase().includes(regSearch.toLowerCase()) ||
+        (reg.reason || '').toLowerCase().includes(regSearch.toLowerCase())
       const matchesPriority = regPriorityFilter === 'All' || reg.priority === regPriorityFilter
       return matchesSearch && matchesPriority
     })
-  }, [regSearch, regPriorityFilter])
+  }, [registrationsList, regSearch, regPriorityFilter])
 
   // Filtered Schemes
   const filteredSchemes = useMemo(() => {
