@@ -1,0 +1,19 @@
+// Application route paths — single source of truth
+export const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  DASHBOARD: '/dashboard',
+  NEW: '/new',
+  BUSINESS_PLAN: '/business-plan',
+  BRANDING: '/branding',
+  WEBSITE: '/website',
+  MARKETING: '/marketing',
+  FINANCE: '/finance',
+  COMPLIANCE: '/compliance',
+  PITCH_DECK: '/pitch-deck',
+  HISTORY: '/history',
+  PROFILE: '/profile',
+  SETTINGS: '/settings',
+  NOT_FOUND: '*',
+}
