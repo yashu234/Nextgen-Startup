@@ -26,55 +26,210 @@
  * }
  */
 
-const { GoogleGenerativeAI } = (() => {
-  try { return require('@google/generative-ai') } catch { return {} }
+const { GoogleGenAI } = (() => {
+  try { return require('@google/genai') } catch { return {} }
 })()
 
 /**
  * Build the Gemini prompt from form data.
- * Member 3 should replace this with their optimised prompt.
+ */
+/**
+ * Build the Gemini prompt from form data.
  */
 function buildPrompt(formData) {
   const { idea, industry, budget, businessType, targetAudience, location } = formData
   return `
-You are an expert startup consultant. Generate a comprehensive startup launch kit in valid JSON format only.
-No markdown, no explanation — only pure JSON.
+You are a Y-Combinator startup advisor, CMO, and CFO. Generate a comprehensive, investor-ready startup launch kit in valid JSON format.
+Return ONLY raw valid JSON — no markdown code fences (\`\`\`json), no preambles.
 
 Startup Details:
 - Idea: ${idea}
 - Industry: ${industry}
 - Budget: ${budget}
-- Business Type: ${businessType || 'Not specified'}
-- Target Audience: ${targetAudience || 'General consumers'}
+- Business Type: ${businessType || 'SaaS'}
+- Target Audience: ${targetAudience || 'B2B & Consumers'}
 - Location: ${location || 'Global'}
 
-Return a JSON object with EXACTLY these top-level keys:
-businessPlan, branding, website, marketing, finance, compliance, pitchDeck
+Return a JSON object with EXACTLY these 7 top-level keys:
+businessPlan, branding, websiteContent, marketing, finance, compliance, pitchDeck
 
-businessPlan must include: executiveSummary, problem, solution, marketAnalysis, revenueModel, growthStrategy, milestones (array of {title, timeline, status}), conclusion
-branding must include: name, tagline, mission, values (array), colors ({primary, secondary, accent} as hex), typography
-website must include: heroHeadline, heroSubtitle, features (array of {title, description}), cta, aboutSection
-marketing must include: channels (array of {name, strategy}), launchChecklist (array), keywords (array), adCampaigns (array of {name, platform, budget})
-finance must include: projections (array of {month, revenue, expenses, profit}), unitEconomics ({cac, ltv, margin}), breakEven, roi
-compliance must include: checklist (array of {item, status, priority}), legalDocs (array), registrations (array)
-pitchDeck must include: problem, solution, market, businessModel, traction, team, ask
+Format specification:
+
+1. "businessPlan":
+{
+  "executiveSummary": "string",
+  "problemStatement": "string",
+  "solutionSummary": "string",
+  "mission": "string",
+  "vision": "string",
+  "marketAnalysis": {
+    "targetMarket": "string",
+    "marketSize": "string (TAM/SAM/SOM)",
+    "competitiveAdvantage": "string"
+  },
+  "competitorAnalysis": "string",
+  "swot": {
+    "strengths": ["string", "string", "string"],
+    "weaknesses": ["string", "string", "string"],
+    "opportunities": ["string", "string", "string"],
+    "threats": ["string", "string", "string"]
+  },
+  "revenueModel": "string",
+  "growthStrategy": "string",
+  "milestones": [
+    { "title": "string", "timeline": "string", "status": "Planned" },
+    { "title": "string", "timeline": "string", "status": "Planned" },
+    { "title": "string", "timeline": "string", "status": "Planned" }
+  ],
+  "conclusion": "string"
+}
+
+2. "branding":
+{
+  "name": "string",
+  "tagline": "string",
+  "brandStory": "string",
+  "coreValues": ["string", "string", "string", "string"],
+  "primaryColors": [
+    { "name": "Indigo Blue", "hex": "#4F46E5" },
+    { "name": "Royal Blue", "hex": "#2563EB" },
+    { "name": "Slate Navy", "hex": "#0F172A" }
+  ],
+  "secondaryColors": [
+    { "name": "Amber Gold", "hex": "#F59E0B" },
+    { "name": "Emerald Green", "hex": "#10B981" },
+    { "name": "Muted Slate", "hex": "#64748B" }
+  ],
+  "brandVoice": "string",
+  "brandPersonality": "string",
+  "targetEmotion": "string",
+  "typography": {
+    "headingFont": "Inter / Outfit",
+    "bodyFont": "Roboto / Plus Jakarta Sans",
+    "recommendation": "string"
+  }
+}
+
+3. "websiteContent":
+{
+  "hero": {
+    "title": "string",
+    "subtitle": "string",
+    "ctaText": "Get Started Free"
+  },
+  "about": "string",
+  "services": [
+    { "title": "string", "desc": "string" },
+    { "title": "string", "desc": "string" },
+    { "title": "string", "desc": "string" }
+  ],
+  "cta": {
+    "heading": "Ready to get started?",
+    "subheading": "Join thousands of early adopters building with us.",
+    "buttonLabel": "Start Free Trial"
+  },
+  "testimonials": [
+    { "text": "string", "name": "Jane Doe", "role": "CEO at TechCorp" }
+  ],
+  "contact": { "email": "contact@startup.com" },
+  "footerContent": "© 2026 Startup. All rights reserved."
+}
+
+4. "marketing":
+{
+  "targetAudience": "string",
+  "marketingStrategy": "string",
+  "socialMedia": ["LinkedIn content strategy", "Twitter daily threads", "Instagram visuals"],
+  "emailCampaign": ["Welcome Drip", "Value Proposition", "Conversion Offer"],
+  "contentStrategy": "string",
+  "seoStrategy": "string",
+  "growthHacks": ["Product Hunt Launch", "Loom Outreach", "Referral Loops"],
+  "launchPlan": "string",
+  "customerAcquisition": "string",
+  "kpis": ["MAU", "CAC", "MRR"],
+  "timeline": "Months 1-3: MVP Launch. Months 4-6: Growth."
+}
+
+5. "finance":
+{
+  "investment": 500000,
+  "pricePerUnit": 250,
+  "monthlyCustomers": 800,
+  "monthlyExpenses": 120000,
+  "revenue": 200000,
+  "expenses": 120000,
+  "profit": 80000,
+  "breakEven": "6 Months",
+  "breakEvenMonths": "6 Months",
+  "roiEstimated": "145% Annual ROI",
+  "projections": [
+    { "month": "Month 1", "customers": 800, "revenue": 200000, "expenses": 120000, "profit": 80000 },
+    { "month": "Month 2", "customers": 864, "revenue": 216000, "expenses": 125000, "profit": 91000 },
+    { "month": "Month 3", "customers": 933, "revenue": 233250, "expenses": 130000, "profit": 103250 }
+  ],
+  "unitEconomics": { "cac": "$350", "ltv": "$2800", "margin": "40%" }
+}
+
+6. "compliance":
+{
+  "checklist": [
+    { "id": "incorporation", "title": "Company Incorporation", "reason": "Legal entity registration", "priority": "High", "status": "Pending" },
+    { "id": "tax_gst", "title": "GST / Tax ID Registration", "reason": "Statutory compliance", "priority": "High", "status": "Pending" },
+    { "id": "trademark", "title": "Trademark Registration", "reason": "Brand protection", "priority": "Medium", "status": "Pending" }
+  ],
+  "legalDocs": [
+    "Terms of Service & User Agreement",
+    "Privacy Policy & Data Security Plan",
+    "Founder / Co-founder Agreement",
+    "Non-Disclosure Agreement (NDA)"
+  ],
+  "registrations": [
+    { "name": "Tax ID / GST Registration", "reason": "Tax compliance for billing", "priority": "High" },
+    { "name": "Trademark Registration", "reason": "Brand protection", "priority": "Medium" }
+  ]
+}
+
+7. "pitchDeck":
+{
+  "problem": "string",
+  "solution": "string",
+  "market": "TAM: $50B | SAM: $5B | Target: $500M",
+  "businessModel": "string",
+  "traction": "string",
+  "team": "string",
+  "ask": "Raising $500K seed round"
+}
 `.trim()
 }
 
 /**
- * Call the Gemini API.
+ * Call the Gemini API using @google/genai.
  * Returns parsed JSON startup kit object.
  */
 async function callGemini(formData) {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  if (!GoogleGenAI) {
+    throw new Error('@google/genai library is not available')
+  }
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
 
-  const result = await model.generateContent(buildPrompt(formData))
-  const text = result.response.text()
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: buildPrompt(formData),
+    config: {
+      responseMimeType: 'application/json',
+    },
+  })
 
-  // Strip markdown code fences if Gemini wraps the JSON
-  const cleaned = text.replace(/```json|```/g, '').trim()
-  return JSON.parse(cleaned)
+  const text = response.text || ''
+  const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()
+  const kit = JSON.parse(cleaned)
+
+  // Attach aliases for backward compatibility across all frontend components
+  if (kit.websiteContent && !kit.website) kit.website = kit.websiteContent
+  if (kit.website && !kit.websiteContent) kit.websiteContent = kit.website
+
+  return kit
 }
 
 /**
@@ -292,9 +447,9 @@ function buildFallbackKit(formData) {
  */
 const generateStartupKit = async (formData) => {
   // Use Gemini only when API key is available
-  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' && GoogleGenerativeAI) {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' && GoogleGenAI) {
     try {
-      console.log('[AI Service] Calling Gemini API...')
+      console.log('[AI Service] Calling Gemini API (gemini-2.5-flash)...')
       const kit = await callGemini(formData)
       console.log('[AI Service] Gemini response received ✅')
       return kit

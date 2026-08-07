@@ -8,7 +8,7 @@ const settingsService = {
   async getSettings() {
     try {
       const response = await apiClient.get('/settings')
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         return { appearance: 'system', notifications: { email: true, projectUpdates: true } }
@@ -20,7 +20,7 @@ const settingsService = {
   async updateSettings(settings) {
     try {
       const response = await apiClient.put('/settings', settings)
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         return { ...settings }

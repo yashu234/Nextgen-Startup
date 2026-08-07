@@ -9,7 +9,7 @@ const profileService = {
   async getProfile() {
     try {
       const response = await apiClient.get(API_ENDPOINTS.ME)
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         const stored = localStorage.getItem(STORAGE_KEYS.USER)
@@ -22,7 +22,7 @@ const profileService = {
   async updateProfile(data) {
     try {
       const response = await apiClient.put(API_ENDPOINTS.ME, data)
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         return { ...data }
