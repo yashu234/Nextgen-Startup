@@ -1,0 +1,194 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Zap, Menu, X, User, LogOut, LayoutDashboard, Settings, ChevronDown } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { SIDEBAR_ITEMS } from '../../constants'
+import { ROUTES } from '../../constants/routes'
+import { getInitials } from '../../utils/formatters'
+import Button from '../Button'
+
+export default function Navbar() {
+  const { isAuthenticated, user, logout } = useAuth()
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const mobileMenuId = 'mobile-navigation-menu'
+  const userMenuId = 'user-navigation-menu'
+
+  function handleLogout() {
+    logout()
+    toast.success('Logged out successfully')
+    navigate(ROUTES.HOME)
+    setUserMenuOpen(false)
+  }
+
+  return (
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <Link
+          to={ROUTES.HOME}
+          className="flex items-center gap-2 font-bold text-slate-900 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+            <Zap size={18} className="text-white" />
+          </div>
+          <span className="text-lg">Startup Forge</span>
+        </Link>
+
+        {/* Desktop right actions */}
+        <div className="hidden md:flex items-center gap-3">
+          {isAuthenticated ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen((prev) => !prev)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                aria-controls={userMenuId}
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                  {getInitials(user?.name)}
+                </div>
+                <span className="text-sm font-medium text-slate-700">{user?.name}</span>
+                <ChevronDown size={14} className="text-slate-400" />
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setUserMenuOpen(false)}
+                  />
+                  <div id={userMenuId} className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-slate-200 shadow-lg z-20 overflow-hidden animate-fade-in-scale">
+                    <Link
+                      to={ROUTES.DASHBOARD}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <LayoutDashboard size={16} className="text-slate-400" />
+                      Dashboard
+                    </Link>
+                    <Link
+                      to={ROUTES.PROFILE}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <User size={16} className="text-slate-400" />
+                      Profile
+                    </Link>
+                    <Link
+                      to={ROUTES.SETTINGS}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <Settings size={16} className="text-slate-400" />
+                      Settings
+                    </Link>
+                    <div className="border-t border-slate-100" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to={ROUTES.LOGIN}>
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </Link>
+              <Link to={ROUTES.SIGNUP}>
+                <Button variant="primary" size="sm">Get Started</Button>
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+          onClick={() => setMobileOpen((prev) => !prev)}
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          aria-controls={mobileMenuId}
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div id={mobileMenuId} className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-2 animate-fade-in">
+          {isAuthenticated ? (
+            <>
+              <Link
+                to={ROUTES.DASHBOARD}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
+              >
+                <LayoutDashboard size={16} className="text-slate-400" />
+                Dashboard
+              </Link>
+              <Link
+                to={ROUTES.PROFILE}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
+              >
+                <User size={16} className="text-slate-400" />
+                Profile
+              </Link>
+              <Link
+                to={ROUTES.SETTINGS}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
+              >
+                <Settings size={16} className="text-slate-400" />
+                Settings
+              </Link>
+              <button
+                onClick={() => { handleLogout(); setMobileOpen(false) }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 w-full text-left"
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+              <div className="pt-3 mt-3 border-t border-slate-100">
+                <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Startup modules
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {SIDEBAR_ITEMS.filter((item) => item.path !== ROUTES.DASHBOARD).map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className="px-3 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-100"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Link to={ROUTES.LOGIN} onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" size="md" className="w-full">Sign In</Button>
+              </Link>
+              <Link to={ROUTES.SIGNUP} onClick={() => setMobileOpen(false)}>
+                <Button variant="primary" size="md" className="w-full">Get Started</Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+    </header>
+  )
+}
