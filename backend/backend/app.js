@@ -3,6 +3,11 @@ const cors = require('cors')
 const helmet = require('helmet')
 const morgan = require('morgan')
 
+const rateLimit = require('express-rate-limit')
+const mongoSanitize = require('express-mongo-sanitize')
+const xss = require('xss-clean')
+const hpp = require('hpp')
+
 const { notFound, errorHandler } = require('./middleware/errorMiddleware')
 
 // ─── Route Imports ────────────────────────────────────────────────────────────
@@ -46,6 +51,25 @@ app.use(
 app.use(express.json())
 // Parse URL-encoded form bodies (application/x-www-form-urlencoded)
 app.use(express.urlencoded({ extended: false }))
+
+// ─── Data Sanitization & Rate Limiting ─────────────────────────────────────────
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again in 15 minutes'
+})
+// Apply limiter to all API routes
+app.use('/api', limiter)
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize())
+
+// Data sanitization against XSS
+app.use(xss())
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp())
 
 // ─── HTTP Request Logger ───────────────────────────────────────────────────────
 // 'dev' format: colorized output → "POST /api/auth/signup 201 12ms"
