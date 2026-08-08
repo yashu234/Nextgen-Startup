@@ -7,12 +7,12 @@ const mongoose = require('mongoose')
  */
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI)
+    const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/startupforge'
+    const conn = await mongoose.connect(uri)
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
   } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`)
-    // Exit with failure so the process manager (nodemon/PM2) can restart cleanly
-    process.exit(1)
+    console.warn(`⚠️ MongoDB Connection Warning: ${error.message}`)
+    console.warn(`👉 Provide a valid MONGO_URI in backend/.env to connect to MongoDB.`)
   }
 }
 
