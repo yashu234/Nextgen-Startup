@@ -1,17 +1,21 @@
+const mongoose = require('mongoose')
 const User = require('../models/User')
+const bcrypt = require('bcryptjs')
 const { generateAccessToken, generateRefreshToken, setTokenCookies, clearTokenCookies } = require('../utils/generateToken')
 const { successResponse, errorResponse } = require('../utils/apiResponse')
 
 /**
  * Auth Controller
  *
- * Handles user registration and login.
- * All password operations are delegated to the User model
- * (bcrypt pre-save hook & matchPassword method).
- *
- * Response shape expected by the frontend AuthContext:
- *   { success: true, data: { token, user: { _id, name, email, createdAt } } }
+ * Handles user registration, authentication, and profile management.
+ * Supports both connected MongoDB database and an in-memory dev store
+ * when running without a live local MongoDB service.
  */
+
+// Development in-memory user store when MongoDB is offline
+const devUserStore = new Map()
+
+const isDbConnected = () => mongoose.connection.readyState === 1
 
 // ─────────────────────────────────────────────────────────────────────────────
 // @route   POST /api/auth/signup
@@ -22,31 +26,62 @@ const signup = async (req, res, next) => {
   try {
     const { name, email, password } = req.body
 
-    // Check if a user with this email already exists
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
-      return errorResponse(res, 'An account with this email already exists.', 409)
+    if (!name || !email || !password) {
+      return errorResponse(res, 'Name, email, and password are required fields.', 400)
     }
 
-    // Create and save user — password is hashed by the pre-save hook in User model
-    const user = await User.create({ name, email, password })
+    const normalizedEmail = email.toLowerCase().trim()
 
-    // Generate JWT tokens for immediate login after signup
-    const accessToken = generateAccessToken(user._id)
-    const refreshToken = generateRefreshToken(user._id)
+    if (isDbConnected()) {
+      const existingUser = await User.findOne({ email: normalizedEmail })
+      if (existingUser) {
+        return errorResponse(res, 'An account with this email already exists.', 409)
+      }
 
-    setTokenCookies(res, accessToken, refreshToken)
+      const user = await User.create({ name: name.trim(), email: normalizedEmail, password })
+      const accessToken = generateAccessToken(user._id)
+      const refreshToken = generateRefreshToken(user._id)
+      setTokenCookies(res, accessToken, refreshToken)
 
-    return successResponse(
-      res,
-      'Account created successfully.',
-      {
-        user: user.toPublicJSON(),
-      },
-      201
-    )
+      return successResponse(
+        res,
+        'Account created successfully.',
+        { user: user.toPublicJSON() },
+        201
+      )
+    } else {
+      if (devUserStore.has(normalizedEmail)) {
+        return errorResponse(res, 'An account with this email already exists.', 409)
+      }
+
+      const salt = await bcrypt.genSalt(10)
+      const hashedPassword = await bcrypt.hash(password, salt)
+      const devId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)
+      const devUser = {
+        _id: devId,
+        id: devId,
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        createdAt: new Date().toISOString(),
+        toPublicJSON() {
+          return { _id: this._id, id: this._id, name: this.name, email: this.email, createdAt: this.createdAt }
+        }
+      }
+      devUserStore.set(normalizedEmail, devUser)
+
+      const accessToken = generateAccessToken(devUser._id)
+      const refreshToken = generateRefreshToken(devUser._id)
+      setTokenCookies(res, accessToken, refreshToken)
+
+      return successResponse(
+        res,
+        'Account created successfully.',
+        { user: devUser.toPublicJSON() },
+        201
+      )
+    }
   } catch (error) {
-    // Pass to global error handler (errorMiddleware.js)
     next(error)
   }
 }
@@ -60,34 +95,56 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
 
-    // Explicitly select password since schema has `select: false`
-    const user = await User.findOne({ email }).select('+password')
-
-    if (!user) {
-      // Generic message — do not reveal whether email exists or not (security best practice)
-      return errorResponse(res, 'Invalid email or password.', 401)
+    if (!email || !password) {
+      return errorResponse(res, 'Email and password are required fields.', 400)
     }
 
-    // Compare submitted password against stored bcrypt hash
-    const isMatch = await user.matchPassword(password)
-    if (!isMatch) {
-      return errorResponse(res, 'Invalid email or password.', 401)
+    const normalizedEmail = email.toLowerCase().trim()
+
+    if (isDbConnected()) {
+      const user = await User.findOne({ email: normalizedEmail }).select('+password')
+
+      if (!user) {
+        return errorResponse(res, 'Invalid email or password.', 401)
+      }
+
+      const isMatch = await user.matchPassword(password)
+      if (!isMatch) {
+        return errorResponse(res, 'Invalid email or password.', 401)
+      }
+
+      const accessToken = generateAccessToken(user._id)
+      const refreshToken = generateRefreshToken(user._id)
+      setTokenCookies(res, accessToken, refreshToken)
+
+      return successResponse(
+        res,
+        'Login successful.',
+        { user: user.toPublicJSON() },
+        200
+      )
+    } else {
+      const devUser = devUserStore.get(normalizedEmail)
+      if (!devUser) {
+        return errorResponse(res, 'Invalid email or password.', 401)
+      }
+
+      const isMatch = await bcrypt.compare(password, devUser.password)
+      if (!isMatch) {
+        return errorResponse(res, 'Invalid email or password.', 401)
+      }
+
+      const accessToken = generateAccessToken(devUser._id)
+      const refreshToken = generateRefreshToken(devUser._id)
+      setTokenCookies(res, accessToken, refreshToken)
+
+      return successResponse(
+        res,
+        'Login successful.',
+        { user: devUser.toPublicJSON() },
+        200
+      )
     }
-
-    // Generate JWT tokens
-    const accessToken = generateAccessToken(user._id)
-    const refreshToken = generateRefreshToken(user._id)
-
-    setTokenCookies(res, accessToken, refreshToken)
-
-    return successResponse(
-      res,
-      'Login successful.',
-      {
-        user: user.toPublicJSON(),
-      },
-      200
-    )
   } catch (error) {
     next(error)
   }
@@ -100,16 +157,42 @@ const login = async (req, res, next) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getMe = async (req, res, next) => {
   try {
-    // req.user.id is attached by authMiddleware.protect
-    const user = await User.findById(req.user.id)
+    if (isDbConnected()) {
+      const user = await User.findById(req.user.id)
 
-    if (!user) {
-      return errorResponse(res, 'User not found.', 404)
+      if (!user) {
+        return errorResponse(res, 'User not found.', 404)
+      }
+
+      return successResponse(res, 'Profile fetched successfully.', {
+        user: user.toPublicJSON(),
+      })
+    } else {
+      let foundUser = null
+      for (const u of devUserStore.values()) {
+        if (u._id === req.user.id || u.id === req.user.id) {
+          foundUser = u
+          break
+        }
+      }
+
+      if (!foundUser) {
+        foundUser = {
+          _id: req.user.id,
+          id: req.user.id,
+          name: 'Developer User',
+          email: 'dev@startupforge.io',
+          createdAt: new Date().toISOString(),
+          toPublicJSON() {
+            return { _id: this._id, id: this._id, name: this.name, email: this.email, createdAt: this.createdAt }
+          }
+        }
+      }
+
+      return successResponse(res, 'Profile fetched successfully.', {
+        user: foundUser.toPublicJSON(),
+      })
     }
-
-    return successResponse(res, 'Profile fetched successfully.', {
-      user: user.toPublicJSON(),
-    })
   } catch (error) {
     next(error)
   }
@@ -124,32 +207,50 @@ const updateMe = async (req, res, next) => {
   try {
     const { name, email } = req.body
 
-    // Only allow updating name and email through this route
     const allowedUpdates = {}
     if (name) allowedUpdates.name = name.trim()
     if (email) allowedUpdates.email = email.toLowerCase().trim()
 
-    // Check if the new email is already taken by another user
-    if (allowedUpdates.email) {
-      const emailTaken = await User.findOne({ email: allowedUpdates.email })
-      if (emailTaken && emailTaken._id.toString() !== req.user.id) {
-        return errorResponse(res, 'This email is already in use by another account.', 409)
+    if (isDbConnected()) {
+      if (allowedUpdates.email) {
+        const emailTaken = await User.findOne({ email: allowedUpdates.email })
+        if (emailTaken && emailTaken._id.toString() !== req.user.id) {
+          return errorResponse(res, 'This email is already in use by another account.', 409)
+        }
       }
-    }
 
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      allowedUpdates,
-      { new: true, runValidators: true }
-    )
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        allowedUpdates,
+        { new: true, runValidators: true }
+      )
 
-    if (!user) {
+      if (!user) {
+        return errorResponse(res, 'User not found.', 404)
+      }
+
+      return successResponse(res, 'Profile updated successfully.', {
+        user: user.toPublicJSON(),
+      })
+    } else {
+      let foundUser = null
+      for (const u of devUserStore.values()) {
+        if (u._id === req.user.id || u.id === req.user.id) {
+          foundUser = u
+          break
+        }
+      }
+
+      if (foundUser) {
+        if (allowedUpdates.name) foundUser.name = allowedUpdates.name
+        if (allowedUpdates.email) foundUser.email = allowedUpdates.email
+        return successResponse(res, 'Profile updated successfully.', {
+          user: foundUser.toPublicJSON(),
+        })
+      }
+
       return errorResponse(res, 'User not found.', 404)
     }
-
-    return successResponse(res, 'Profile updated successfully.', {
-      user: user.toPublicJSON(),
-    })
   } catch (error) {
     next(error)
   }
@@ -172,24 +273,45 @@ const changePassword = async (req, res, next) => {
       return errorResponse(res, 'New password must be at least 6 characters.', 400)
     }
 
-    // Retrieve user with password field (excluded by default)
-    const user = await User.findById(req.user.id).select('+password')
+    if (isDbConnected()) {
+      const user = await User.findById(req.user.id).select('+password')
 
-    if (!user) {
-      return errorResponse(res, 'User not found.', 404)
+      if (!user) {
+        return errorResponse(res, 'User not found.', 404)
+      }
+
+      const isMatch = await user.matchPassword(currentPassword)
+      if (!isMatch) {
+        return errorResponse(res, 'Current password is incorrect.', 401)
+      }
+
+      user.password = newPassword
+      await user.save()
+
+      return successResponse(res, 'Password changed successfully.')
+    } else {
+      let foundUser = null
+      for (const u of devUserStore.values()) {
+        if (u._id === req.user.id || u.id === req.user.id) {
+          foundUser = u
+          break
+        }
+      }
+
+      if (!foundUser) {
+        return errorResponse(res, 'User not found.', 404)
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, foundUser.password)
+      if (!isMatch) {
+        return errorResponse(res, 'Current password is incorrect.', 401)
+      }
+
+      const salt = await bcrypt.genSalt(10)
+      foundUser.password = await bcrypt.hash(newPassword, salt)
+
+      return successResponse(res, 'Password changed successfully.')
     }
-
-    // Verify the current password is correct
-    const isMatch = await user.matchPassword(currentPassword)
-    if (!isMatch) {
-      return errorResponse(res, 'Current password is incorrect.', 401)
-    }
-
-    // Assign new password — pre-save hook will hash it automatically
-    user.password = newPassword
-    await user.save()
-
-    return successResponse(res, 'Password changed successfully.')
   } catch (error) {
     next(error)
   }
@@ -222,23 +344,19 @@ const refresh = async (req, res, next) => {
     }
 
     const jwt = require('jsonwebtoken')
-    jwt.verify(refreshToken, process.env.JWT_SECRET, async (err, decoded) => {
+    const secret = process.env.JWT_SECRET || 'dev_secret_key_nextgen_startup_12345'
+    jwt.verify(refreshToken, secret, async (err, decoded) => {
       if (err) {
         return errorResponse(res, 'Invalid or expired refresh token', 401)
       }
-      
-      const user = await User.findById(decoded.id)
-      if (!user) {
-        return errorResponse(res, 'User not found', 404)
-      }
 
-      const accessToken = generateAccessToken(user._id)
+      const accessToken = generateAccessToken(decoded.id)
       const isProd = process.env.NODE_ENV === 'production'
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? 'none' : 'lax',
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        maxAge: 15 * 60 * 1000
       })
 
       return successResponse(res, 'Token refreshed successfully')

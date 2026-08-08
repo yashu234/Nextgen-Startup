@@ -16,9 +16,9 @@ const mongoose = require('mongoose')
  */
 const startupProjectSchema = new mongoose.Schema(
   {
-    // Reference to the user who created this project
+    // Reference to the user who created this project (accepts ObjectId or dev String IDs)
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Mixed,
       ref: 'User',
       required: true,
       index: true, // optimise lookup by user

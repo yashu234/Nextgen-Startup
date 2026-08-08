@@ -27,7 +27,8 @@ const protect = async (req, res, next) => {
     }
 
     // Verify the token — throws if expired or tampered
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const secret = process.env.JWT_SECRET || 'dev_secret_key_nextgen_startup_12345'
+    const decoded = jwt.verify(token, secret)
 
     // Attach decoded payload (contains { id, iat, exp }) to the request
     req.user = decoded

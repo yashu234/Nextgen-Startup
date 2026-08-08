@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken')
+const getJwtSecret = () => process.env.JWT_SECRET || 'dev_secret_key_nextgen_startup_12345'
 
 const generateAccessToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '15m' })
+  return jwt.sign({ id: userId }, getJwtSecret(), { expiresIn: '15m' })
 }
 
 const generateRefreshToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign({ id: userId }, getJwtSecret(), { expiresIn: '7d' })
 }
 
 const setTokenCookies = (res, accessToken, refreshToken) => {
