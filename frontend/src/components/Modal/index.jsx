@@ -94,7 +94,7 @@ export default function Modal({
         tabIndex={-1}
         ref={dialogRef}
         className={[
-          'relative w-full bg-surface rounded-2xl shadow-xl transition-colors duration-200',
+          'relative w-full bg-white rounded-2xl shadow-xl',
           'animate-fade-in-scale',
           sizeClasses[size] ?? sizeClasses.md,
         ].join(' ')}
@@ -103,25 +103,24 @@ export default function Modal({
         <div className="flex items-start justify-between p-6 pb-4">
           <div>
             {title && (
-              <h2 id="modal-title" className="text-lg font-semibold text-text-primary">
+              <h2 id="modal-title" className="text-lg font-semibold text-slate-900">
                 {title}
               </h2>
             )}
             {description && (
-              <p id="modal-description" className="mt-1 text-sm text-text-secondary">{description}</p>
+              <p id="modal-description" className="mt-1 text-sm text-slate-500">{description}</p>
             )}
           </div>
           {!loading && (
             <button
               onClick={onClose}
               aria-label="Close modal"
-              className="ml-4 p-1.5 rounded-lg text-text-tertiary hover:text-text-secondary hover:bg-surface-secondary transition-colors"
+              className="ml-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <X size={18} />
             </button>
           )}
         </div>
-
 
         {/* Body */}
         {children && (

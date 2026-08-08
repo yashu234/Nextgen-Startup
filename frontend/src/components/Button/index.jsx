@@ -1,11 +1,11 @@
 import { Loader2 } from 'lucide-react'
 
 const VARIANTS = {
-  primary: 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus-visible:ring-blue-500 disabled:bg-blue-300 dark:disabled:bg-blue-800',
-  secondary: 'bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 focus-visible:ring-indigo-500 disabled:bg-indigo-300 dark:disabled:bg-indigo-800',
-  outline: 'border border-border bg-surface text-text-secondary hover:bg-surface-secondary focus-visible:ring-slate-400 disabled:opacity-50',
-  ghost: 'bg-transparent text-text-secondary hover:bg-surface-secondary focus-visible:ring-slate-400 disabled:opacity-50',
-  danger: 'bg-red-500 dark:bg-red-600 text-white hover:bg-red-600 dark:hover:bg-red-700 focus-visible:ring-red-400 disabled:bg-red-300 dark:disabled:bg-red-800',
+  primary: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 disabled:bg-blue-300',
+  secondary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500 disabled:bg-indigo-300',
+  outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400 disabled:opacity-50',
+  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-400 disabled:opacity-50',
+  danger: 'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-400 disabled:bg-red-300',
 }
 
 const SIZES = {

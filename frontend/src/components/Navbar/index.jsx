@@ -25,12 +25,12 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link
           to={ROUTES.HOME}
-          className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 font-bold text-slate-900 hover:opacity-80 transition-opacity"
         >
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <Zap size={18} className="text-white" />
@@ -44,7 +44,7 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-secondary text-text-primary transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
                 aria-expanded={userMenuOpen}
                 aria-haspopup="true"
                 aria-controls={userMenuId}
@@ -52,8 +52,8 @@ export default function Navbar() {
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
                   {getInitials(user?.name)}
                 </div>
-                <span className="text-sm font-medium text-text-secondary">{user?.name}</span>
-                <ChevronDown size={14} className="text-text-tertiary" />
+                <span className="text-sm font-medium text-slate-700">{user?.name}</span>
+                <ChevronDown size={14} className="text-slate-400" />
               </button>
 
               {userMenuOpen && (
@@ -62,35 +62,35 @@ export default function Navbar() {
                     className="fixed inset-0 z-10"
                     onClick={() => setUserMenuOpen(false)}
                   />
-                  <div id={userMenuId} className="absolute right-0 top-full mt-2 w-48 bg-surface rounded-xl border border-border shadow-lg z-20 overflow-hidden animate-fade-in-scale transition-colors duration-200">
+                  <div id={userMenuId} className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl border border-slate-200 shadow-lg z-20 overflow-hidden animate-fade-in-scale">
                     <Link
                       to={ROUTES.DASHBOARD}
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-secondary transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     >
-                      <LayoutDashboard size={16} className="text-text-tertiary" />
+                      <LayoutDashboard size={16} className="text-slate-400" />
                       Dashboard
                     </Link>
                     <Link
                       to={ROUTES.PROFILE}
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-secondary transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     >
-                      <User size={16} className="text-text-tertiary" />
+                      <User size={16} className="text-slate-400" />
                       Profile
                     </Link>
                     <Link
                       to={ROUTES.SETTINGS}
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-secondary transition-colors"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     >
-                      <Settings size={16} className="text-text-tertiary" />
+                      <Settings size={16} className="text-slate-400" />
                       Settings
                     </Link>
-                    <div className="border-t border-border/50" />
+                    <div className="border-t border-slate-100" />
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors w-full text-left"
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left"
                     >
                       <LogOut size={16} />
                       Sign Out
@@ -113,7 +113,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-surface-secondary text-text-primary transition-colors"
+          className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={mobileOpen}
@@ -125,42 +125,42 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div id={mobileMenuId} className="md:hidden border-t border-border bg-surface px-4 py-4 space-y-2 animate-fade-in transition-colors duration-200">
+        <div id={mobileMenuId} className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-2 animate-fade-in">
           {isAuthenticated ? (
             <>
               <Link
                 to={ROUTES.DASHBOARD}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-text-secondary hover:bg-surface-secondary"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
               >
-                <LayoutDashboard size={16} className="text-text-tertiary" />
+                <LayoutDashboard size={16} className="text-slate-400" />
                 Dashboard
               </Link>
               <Link
                 to={ROUTES.PROFILE}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-text-secondary hover:bg-surface-secondary"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
               >
-                <User size={16} className="text-text-tertiary" />
+                <User size={16} className="text-slate-400" />
                 Profile
               </Link>
               <Link
                 to={ROUTES.SETTINGS}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-text-secondary hover:bg-surface-secondary"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
               >
-                <Settings size={16} className="text-text-tertiary" />
+                <Settings size={16} className="text-slate-400" />
                 Settings
               </Link>
               <button
                 onClick={() => { handleLogout(); setMobileOpen(false) }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-500/10 w-full text-left"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 w-full text-left"
               >
                 <LogOut size={16} />
                 Sign Out
               </button>
-              <div className="pt-3 mt-3 border-t border-border/50">
-                <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-text-tertiary">
+              <div className="pt-3 mt-3 border-t border-slate-100">
+                <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                   Startup modules
                 </p>
                 <div className="grid grid-cols-2 gap-2">
@@ -169,7 +169,7 @@ export default function Navbar() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setMobileOpen(false)}
-                      className="px-3 py-2 rounded-lg text-xs text-text-secondary hover:bg-surface-secondary"
+                      className="px-3 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-100"
                     >
                       {item.label}
                     </Link>
@@ -190,6 +190,5 @@ export default function Navbar() {
         </div>
       )}
     </header>
-
   )
 }

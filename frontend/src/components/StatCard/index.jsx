@@ -6,8 +6,8 @@ export default function StatCard({
   trend,
   trendLabel,
   icon: Icon,
-  iconColor = 'text-blue-600 dark:text-blue-400',
-  iconBg = 'bg-blue-50 dark:bg-blue-950/40',
+  iconColor = 'text-blue-600',
+  iconBg = 'bg-blue-50',
   loading = false,
   className = '',
 }) {
@@ -17,15 +17,15 @@ export default function StatCard({
   return (
     <div
       className={[
-        'bg-surface rounded-xl border border-border shadow-sm p-6 transition-colors duration-200',
+        'bg-white rounded-xl border border-slate-200 shadow-sm p-6',
         'flex flex-col gap-4',
         className,
       ].join(' ')}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-text-secondary">{title}</p>
+        <p className="text-sm font-medium text-slate-500">{title}</p>
         {Icon && (
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-200 ${iconBg}`}>
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconBg}`}>
             <Icon size={20} className={iconColor} />
           </div>
         )}
@@ -34,13 +34,13 @@ export default function StatCard({
       {loading ? (
         <div className="h-8 w-24 rounded-md animate-shimmer" />
       ) : (
-        <p className="text-2xl font-bold text-text-primary leading-none">{value}</p>
+        <p className="text-2xl font-bold text-slate-900 leading-none">{value}</p>
       )}
 
       {trend !== undefined && !loading && (
         <div className="flex items-center gap-1.5">
           {trendNeutral ? (
-            <Minus size={14} className="text-text-tertiary" />
+            <Minus size={14} className="text-slate-400" />
           ) : trendPositive ? (
             <TrendingUp size={14} className="text-emerald-500" />
           ) : (
@@ -49,10 +49,10 @@ export default function StatCard({
           <span
             className={`text-xs font-medium ${
               trendNeutral
-                ? 'text-text-tertiary'
+                ? 'text-slate-400'
                 : trendPositive
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-red-500 dark:text-red-400'
+                ? 'text-emerald-600'
+                : 'text-red-500'
             }`}
           >
             {trendLabel ?? `${Math.abs(trend)}%`}
@@ -62,4 +62,3 @@ export default function StatCard({
     </div>
   )
 }
-
