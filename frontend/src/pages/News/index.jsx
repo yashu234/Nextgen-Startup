@@ -5,15 +5,18 @@ import {
   TrendingUp, DollarSign, Building2, ShieldAlert, Sparkles, ExternalLink, Mail, Clock
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
+import { useToast } from '../../context/ToastContext'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { NEWS_INTELLIGENCE_DATA } from '../../data/mockModuleData'
 import { formatCurrency } from '../../utils/formatters'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function NewsIntelligence() {
   const { result } = useStartup()
+  const { toast } = useToast()
   const activeIndustry = result?.formData?.industry || 'All'
 
   const [activeTab, setActiveTab] = useState('all') // 'all', 'trends', 'funding', 'competitors', 'regulations', 'saved', 'newsletter'
@@ -106,7 +109,11 @@ export default function NewsIntelligence() {
             >
               Weekly Digest
             </Button>
-            <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
+            <Button variant="primary" size="sm" icon={Download} onClick={() => {
+              if (!result) { toast.error('No startup kit loaded to export.'); return }
+              try { generateStartupKitPDF(result); toast.success('Startup Kit PDF downloaded!') }
+              catch (err) { toast.error('Failed to generate PDF: ' + err.message) }
+            }}>
               Export Intelligence
             </Button>
           </div>
@@ -461,7 +468,11 @@ export default function NewsIntelligence() {
                 </div>
 
                 <div className="flex justify-end gap-3">
-                  <Button variant="outline" size="sm" icon={Download} onClick={() => window.print()}>
+                  <Button variant="outline" size="sm" icon={Download} onClick={() => {
+                    if (!result) { toast.error('No startup kit loaded to export.'); return }
+                    try { generateStartupKitPDF(result); toast.success('Startup Kit PDF downloaded!') }
+                    catch (err) { toast.error('Failed to generate PDF: ' + err.message) }
+                  }}>
                     Download PDF Digest
                   </Button>
                   <Button variant="primary" size="sm" icon={Share2} onClick={() => handleShare('Weekly Founder Digest')}>

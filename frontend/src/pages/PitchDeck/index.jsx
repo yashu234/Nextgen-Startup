@@ -5,6 +5,7 @@ import {
   RefreshCw, Sparkles, MessageSquare, ShieldAlert, Award, FileCheck, Edit3, Send, Check, Play
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
+import { useToast } from '../../context/ToastContext'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
@@ -12,9 +13,11 @@ import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
 import { PITCH_DECK_MODULE_DATA } from '../../data/mockModuleData'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function PitchDeck() {
   const { result, generateKit, isGenerating, error } = useStartup()
+  const { toast } = useToast()
   const navigate = useNavigate()
 
   // Active Sub-Module Tab: 'deck', 'storytelling', 'practice', 'objections', 'sharktank', 'reviewer'
@@ -250,6 +253,19 @@ export default function PitchDeck() {
     }, 1000)
   }
 
+  function handleDownloadPDF() {
+    if (!result) {
+      toast.error('No startup kit loaded to export.')
+      return
+    }
+    try {
+      generateStartupKitPDF(result)
+      toast.success('Pitch Deck & Startup Kit PDF downloaded!')
+    } catch (err) {
+      toast.error('Failed to generate PDF: ' + err.message)
+    }
+  }
+
   if (isGenerating) {
     return (
       <div className="space-y-4 animate-fade-in">
@@ -295,8 +311,8 @@ export default function PitchDeck() {
               <Button variant="outline" size="sm" icon={Maximize2} onClick={() => setIsFullscreen(!isFullscreen)}>
                 Fullscreen
               </Button>
-              <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
-                Export Deck (PDF/PPTX)
+              <Button variant="primary" size="sm" icon={Download} onClick={handleDownloadPDF}>
+                Export Deck (PDF)
               </Button>
             </div>
           </div>
