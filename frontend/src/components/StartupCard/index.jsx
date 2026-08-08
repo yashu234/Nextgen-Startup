@@ -3,13 +3,13 @@ import { formatRelativeTime } from '../../utils/formatters'
 import Button from '../Button'
 
 const INDUSTRY_COLORS = {
-  technology: 'bg-blue-100 text-blue-700',
-  ecommerce: 'bg-purple-100 text-purple-700',
-  healthcare: 'bg-green-100 text-green-700',
-  education: 'bg-amber-100 text-amber-700',
-  finance: 'bg-indigo-100 text-indigo-700',
-  food: 'bg-orange-100 text-orange-700',
-  default: 'bg-slate-100 text-slate-600',
+  technology: 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400',
+  ecommerce: 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400',
+  healthcare: 'bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400',
+  education: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400',
+  finance: 'bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400',
+  food: 'bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400',
+  default: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
 }
 
 export default function StartupCard({
@@ -25,14 +25,14 @@ export default function StartupCard({
   return (
     <div
       className={[
-        'bg-white rounded-xl border border-slate-200 shadow-sm p-5',
+        'bg-surface rounded-xl border border-border shadow-sm p-5 transition-colors duration-200',
         'flex flex-col gap-4 transition-shadow duration-200 hover:shadow-md',
         className,
       ].join(' ')}
     >
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-900 line-clamp-2 leading-snug">
+          <p className="text-sm font-semibold text-text-primary line-clamp-2 leading-snug">
             {idea}
           </p>
         </div>
@@ -48,14 +48,14 @@ export default function StartupCard({
           </span>
         )}
         {createdAt && (
-          <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+          <span className="inline-flex items-center gap-1 text-xs text-text-tertiary">
             <Calendar size={11} />
             {formatRelativeTime(createdAt)}
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+      <div className="flex items-center gap-2 pt-1 border-t border-border/50">
         <Button
           variant="outline"
           size="sm"
@@ -74,10 +74,11 @@ export default function StartupCard({
             loading={loading}
             onClick={onDelete}
             aria-label="Delete startup kit"
-            className="text-slate-400 hover:text-red-500"
+            className="text-text-tertiary hover:text-red-500"
           />
         )}
       </div>
     </div>
   )
 }
+

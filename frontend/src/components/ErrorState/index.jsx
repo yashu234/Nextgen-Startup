@@ -15,15 +15,16 @@ export default function ErrorState({
         className,
       ].join(' ')}
     >
-      <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
-        <AlertTriangle size={28} className="text-red-400" />
+      <div className="w-16 h-16 rounded-2xl bg-danger-bg flex items-center justify-center transition-colors duration-200">
+        <AlertTriangle size={28} className="text-danger" />
       </div>
       <div className="max-w-xs">
-        <h3 className="text-base font-semibold text-slate-900 mb-1">{title}</h3>
+        <h3 className="text-base font-semibold text-text-primary mb-1">{title}</h3>
         {message && (
-          <p className="text-sm text-slate-500 leading-relaxed">{message}</p>
+          <p className="text-sm text-text-secondary leading-relaxed">{message}</p>
         )}
       </div>
+
       {onRetry && (
         <Button
           variant="outline"

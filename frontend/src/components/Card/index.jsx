@@ -8,7 +8,7 @@ export default function Card({
   return (
     <div
       className={[
-        'bg-white rounded-xl border border-slate-200 shadow-sm',
+        'bg-surface rounded-xl border border-border shadow-sm transition-colors duration-200',
         padding ? 'p-6' : '',
         hover ? 'transition-shadow duration-200 hover:shadow-md cursor-pointer' : '',
         className,
@@ -22,7 +22,7 @@ export default function Card({
 
 Card.Header = function CardHeader({ children, className = '' }) {
   return (
-    <div className={`mb-4 pb-4 border-b border-slate-100 ${className}`}>
+    <div className={`mb-4 pb-4 border-b border-border/50 ${className}`}>
       {children}
     </div>
   )
@@ -30,7 +30,7 @@ Card.Header = function CardHeader({ children, className = '' }) {
 
 Card.Title = function CardTitle({ children, className = '' }) {
   return (
-    <h3 className={`text-base font-semibold text-slate-900 ${className}`}>
+    <h3 className={`text-base font-semibold text-text-primary ${className}`}>
       {children}
     </h3>
   )
@@ -42,8 +42,9 @@ Card.Body = function CardBody({ children, className = '' }) {
 
 Card.Footer = function CardFooter({ children, className = '' }) {
   return (
-    <div className={`mt-4 pt-4 border-t border-slate-100 ${className}`}>
+    <div className={`mt-4 pt-4 border-t border-border/50 ${className}`}>
       {children}
     </div>
   )
 }
+

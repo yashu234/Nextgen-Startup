@@ -5,23 +5,23 @@ import { TOAST_TYPES } from '../../constants'
 const CONFIG = {
   [TOAST_TYPES.SUCCESS]: {
     icon: CheckCircle,
-    classes: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    iconClass: 'text-emerald-500',
+    classes: 'bg-success-bg border-success/20 text-emerald-800 dark:text-emerald-200',
+    iconClass: 'text-success',
   },
   [TOAST_TYPES.ERROR]: {
     icon: AlertCircle,
-    classes: 'bg-red-50 border-red-200 text-red-800',
-    iconClass: 'text-red-500',
+    classes: 'bg-danger-bg border-danger/20 text-red-800 dark:text-red-200',
+    iconClass: 'text-danger',
   },
   [TOAST_TYPES.WARNING]: {
     icon: AlertTriangle,
-    classes: 'bg-amber-50 border-amber-200 text-amber-800',
-    iconClass: 'text-amber-500',
+    classes: 'bg-warning-bg border-warning/20 text-amber-800 dark:text-amber-200',
+    iconClass: 'text-warning',
   },
   [TOAST_TYPES.INFO]: {
     icon: Info,
-    classes: 'bg-blue-50 border-blue-200 text-blue-800',
-    iconClass: 'text-blue-500',
+    classes: 'bg-info-bg border-info/20 text-blue-800 dark:text-blue-200',
+    iconClass: 'text-info',
   },
 }
 

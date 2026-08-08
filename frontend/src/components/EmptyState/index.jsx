@@ -17,18 +17,19 @@ export default function EmptyState({
       ].join(' ')}
     >
       {Icon && (
-        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-          <Icon size={28} className="text-slate-400" />
+        <div className="w-16 h-16 rounded-2xl bg-surface-secondary flex items-center justify-center transition-colors duration-200">
+          <Icon size={28} className="text-text-tertiary" />
         </div>
       )}
       <div className="max-w-xs">
         {title && (
-          <h3 className="text-base font-semibold text-slate-900 mb-1">{title}</h3>
+          <h3 className="text-base font-semibold text-text-primary mb-1">{title}</h3>
         )}
         {description && (
-          <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
+          <p className="text-sm text-text-secondary leading-relaxed">{description}</p>
         )}
       </div>
+
       {action && actionLabel && (
         <Button variant="primary" onClick={action} className="mt-2">
           {actionLabel}

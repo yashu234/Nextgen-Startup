@@ -5,11 +5,11 @@ import { ROUTES } from '../constants/routes'
 
 export default function AuthLayout() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-4 transition-colors duration-200">
       {/* Logo */}
       <Link
         to={ROUTES.HOME}
-        className="flex items-center gap-2 font-bold text-slate-900 hover:opacity-80 transition-opacity mb-8"
+        className="flex items-center gap-2 font-bold text-text-primary hover:opacity-80 transition-opacity mb-8"
       >
         <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
           <Zap size={20} className="text-white" />
@@ -18,9 +18,10 @@ export default function AuthLayout() {
       </Link>
 
       {/* Auth card */}
-      <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-8 animate-fade-in-scale">
+      <div className="w-full max-w-md bg-surface rounded-2xl border border-border shadow-sm p-8 animate-fade-in-scale transition-colors duration-200">
         <Outlet />
       </div>
     </div>
   )
 }
+
