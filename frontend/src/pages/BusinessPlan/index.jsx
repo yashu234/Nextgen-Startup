@@ -12,6 +12,7 @@ import Button from '../../components/Button'
 import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function BusinessPlan() {
   const { result, generateKit, isGenerating, error } = useStartup()
@@ -75,6 +76,19 @@ export default function BusinessPlan() {
     await generateKit()
   }
 
+  function handleDownloadPDF() {
+    if (!result) {
+      toast.error('No startup kit loaded to export.')
+      return
+    }
+    try {
+      generateStartupKitPDF(result)
+      toast.success('Startup Kit PDF downloaded!')
+    } catch (err) {
+      toast.error('Failed to generate PDF: ' + err.message)
+    }
+  }
+
   if (!result && !plan) {
     return (
       <EmptyState
@@ -113,7 +127,7 @@ export default function BusinessPlan() {
             <Button variant="outline" size="sm" icon={RefreshCw} loading={isGenerating} onClick={handleRegenerate}>
               Regenerate
             </Button>
-            <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
+            <Button variant="primary" size="sm" icon={Download} onClick={handleDownloadPDF}>
               Download PDF
             </Button>
           </div>

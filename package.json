@@ -1,0 +1,14 @@
+{
+  "name": "startup-forge-monorepo",
+  "version": "1.0.0",
+  "description": "Nextgen Startup Platform - Integrated AI Engine, Express API Backend & React Frontend",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend start",
+    "build:frontend": "npm --prefix frontend run build",
+    "cli": "npm --prefix ai-cli start",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend && npm install --prefix ai-cli"
+  }
+}

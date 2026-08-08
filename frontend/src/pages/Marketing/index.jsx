@@ -2,15 +2,18 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Megaphone, Search, Share2, Mail, FileText, ArrowLeft, Download, RefreshCw, Zap, Users, Target, Rocket, BarChart2, Calendar } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
+import { useToast } from '../../context/ToastContext'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
 import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function Marketing() {
   const { result, generateKit, isGenerating, error } = useStartup()
+  const { toast } = useToast()
   const navigate = useNavigate()
 
   const mkt = result?.marketing
@@ -74,7 +77,11 @@ export default function Marketing() {
             <Button variant="outline" size="sm" icon={RefreshCw} loading={isGenerating} onClick={generateKit}>
               Regenerate
             </Button>
-            <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
+            <Button variant="primary" size="sm" icon={Download} onClick={() => {
+              if (!result) { toast.error('No startup kit loaded to export.'); return }
+              try { generateStartupKitPDF(result); toast.success('Marketing Strategy PDF downloaded!') }
+              catch (err) { toast.error('Failed to generate PDF: ' + err.message) }
+            }}>
               Export Strategy
             </Button>
           </div>

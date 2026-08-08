@@ -13,7 +13,8 @@ const historyService = {
   async getAll() {
     try {
       const response = await apiClient.get(API_ENDPOINTS.HISTORY)
-      return response.data?.data ?? response.data
+      const payload = response.data?.data ?? response.data
+      return Array.isArray(payload) ? payload : (payload?.projects || [])
     } catch (error) {
       if (isNetworkError(error)) {
         throw unavailableError()
@@ -25,7 +26,7 @@ const historyService = {
   async getById(id) {
     try {
       const response = await apiClient.get(API_ENDPOINTS.HISTORY_ITEM(id))
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         throw unavailableError()
@@ -37,7 +38,7 @@ const historyService = {
   async remove(id) {
     try {
       const response = await apiClient.delete(API_ENDPOINTS.HISTORY_ITEM(id))
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         throw unavailableError()

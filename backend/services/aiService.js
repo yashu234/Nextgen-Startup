@@ -1,0 +1,528 @@
+/**
+ * AI Service — Startup Kit Generation Bridge
+ *
+ * This is the single point of contact between the backend (Member 2)
+ * and the AI engine (Member 3).
+ *
+ * Current implementation:
+ *   → Uses Google Gemini API if GEMINI_API_KEY is set in .env
+ *   → Falls back to a structured mock response for development/testing
+ *     when the API key is not yet configured
+ *
+ * Member 3 Integration Note:
+ *   Replace the contents of `callGemini()` with Member 3's final
+ *   Gemini prompt logic. The function must return the structured
+ *   startup kit object shown in `buildFallbackKit()`.
+ *
+ * Expected return shape (consumed directly by the frontend):
+ * {
+ *   businessPlan:  { executiveSummary, problem, solution, marketAnalysis, revenueModel, growthStrategy, milestones, conclusion },
+ *   branding:      { name, tagline, mission, values[], colors: { primary, secondary, accent }, typography },
+ *   website:       { heroHeadline, heroSubtitle, features[], cta, aboutSection },
+ *   marketing:     { channels[], launchChecklist[], keywords[], adCampaigns[] },
+ *   finance:       { projections[], unitEconomics, breakEven, roi },
+ *   compliance:    { checklist[], legalDocs[], registrations[] },
+ *   pitchDeck:     { problem, solution, market, businessModel, traction, team, ask }
+ * }
+ */
+
+const { GoogleGenAI } = (() => {
+  try { return require('@google/genai') } catch { return {} }
+})()
+
+/**
+ * Build the Gemini prompt from form data.
+ */
+/**
+ * Build the Gemini prompt from form data.
+ */
+function buildPrompt(formData) {
+  const { idea, industry, budget, businessType, targetAudience, location } = formData
+  return `
+You are a Y-Combinator startup advisor, CMO, and CFO. Generate a comprehensive, investor-ready startup launch kit in valid JSON format.
+Return ONLY raw valid JSON — no markdown code fences (\`\`\`json), no preambles.
+
+Startup Details:
+- Idea: ${idea}
+- Industry: ${industry}
+- Budget: ${budget}
+- Business Type: ${businessType || 'SaaS'}
+- Target Audience: ${targetAudience || 'B2B & Consumers'}
+- Location: ${location || 'Global'}
+
+Return a JSON object with EXACTLY these 7 top-level keys:
+businessPlan, branding, websiteContent, marketing, finance, compliance, pitchDeck
+
+Format specification:
+
+1. "businessPlan":
+{
+  "executiveSummary": "string",
+  "problemStatement": "string",
+  "solutionSummary": "string",
+  "mission": "string",
+  "vision": "string",
+  "marketAnalysis": {
+    "targetMarket": "string",
+    "marketSize": "string (TAM/SAM/SOM)",
+    "competitiveAdvantage": "string"
+  },
+  "competitorAnalysis": "string",
+  "swot": {
+    "strengths": ["string", "string", "string"],
+    "weaknesses": ["string", "string", "string"],
+    "opportunities": ["string", "string", "string"],
+    "threats": ["string", "string", "string"]
+  },
+  "revenueModel": "string",
+  "growthStrategy": "string",
+  "milestones": [
+    { "title": "string", "timeline": "string", "status": "Planned" },
+    { "title": "string", "timeline": "string", "status": "Planned" },
+    { "title": "string", "timeline": "string", "status": "Planned" }
+  ],
+  "conclusion": "string"
+}
+
+2. "branding":
+{
+  "name": "string",
+  "tagline": "string",
+  "brandStory": "string",
+  "coreValues": ["string", "string", "string", "string"],
+  "primaryColors": [
+    { "name": "Indigo Blue", "hex": "#4F46E5" },
+    { "name": "Royal Blue", "hex": "#2563EB" },
+    { "name": "Slate Navy", "hex": "#0F172A" }
+  ],
+  "secondaryColors": [
+    { "name": "Amber Gold", "hex": "#F59E0B" },
+    { "name": "Emerald Green", "hex": "#10B981" },
+    { "name": "Muted Slate", "hex": "#64748B" }
+  ],
+  "brandVoice": "string",
+  "brandPersonality": "string",
+  "targetEmotion": "string",
+  "typography": {
+    "headingFont": "Inter / Outfit",
+    "bodyFont": "Roboto / Plus Jakarta Sans",
+    "recommendation": "string"
+  }
+}
+
+3. "websiteContent":
+{
+  "hero": {
+    "title": "string",
+    "subtitle": "string",
+    "ctaText": "Get Started Free"
+  },
+  "about": "string",
+  "services": [
+    { "title": "string", "desc": "string" },
+    { "title": "string", "desc": "string" },
+    { "title": "string", "desc": "string" }
+  ],
+  "cta": {
+    "heading": "Ready to get started?",
+    "subheading": "Join thousands of early adopters building with us.",
+    "buttonLabel": "Start Free Trial"
+  },
+  "testimonials": [
+    { "text": "string", "name": "Jane Doe", "role": "CEO at TechCorp" }
+  ],
+  "contact": { "email": "contact@startup.com" },
+  "footerContent": "© 2026 Startup. All rights reserved."
+}
+
+4. "marketing":
+{
+  "targetAudience": "string",
+  "marketingStrategy": "string",
+  "socialMedia": ["LinkedIn content strategy", "Twitter daily threads", "Instagram visuals"],
+  "emailCampaign": ["Welcome Drip", "Value Proposition", "Conversion Offer"],
+  "contentStrategy": "string",
+  "seoStrategy": "string",
+  "growthHacks": ["Product Hunt Launch", "Loom Outreach", "Referral Loops"],
+  "launchPlan": "string",
+  "customerAcquisition": "string",
+  "kpis": ["MAU", "CAC", "MRR"],
+  "timeline": "Months 1-3: MVP Launch. Months 4-6: Growth."
+}
+
+5. "finance":
+{
+  "investment": 500000,
+  "pricePerUnit": 250,
+  "monthlyCustomers": 800,
+  "monthlyExpenses": 120000,
+  "revenue": 200000,
+  "expenses": 120000,
+  "profit": 80000,
+  "breakEven": "6 Months",
+  "breakEvenMonths": "6 Months",
+  "roiEstimated": "145% Annual ROI",
+  "projections": [
+    { "month": "Month 1", "customers": 800, "revenue": 200000, "expenses": 120000, "profit": 80000 },
+    { "month": "Month 2", "customers": 864, "revenue": 216000, "expenses": 125000, "profit": 91000 },
+    { "month": "Month 3", "customers": 933, "revenue": 233250, "expenses": 130000, "profit": 103250 }
+  ],
+  "unitEconomics": { "cac": "$350", "ltv": "$2800", "margin": "40%" }
+}
+
+6. "compliance":
+{
+  "checklist": [
+    { "id": "incorporation", "title": "Company Incorporation", "reason": "Legal entity registration", "priority": "High", "status": "Pending" },
+    { "id": "tax_gst", "title": "GST / Tax ID Registration", "reason": "Statutory compliance", "priority": "High", "status": "Pending" },
+    { "id": "trademark", "title": "Trademark Registration", "reason": "Brand protection", "priority": "Medium", "status": "Pending" }
+  ],
+  "legalDocs": [
+    "Terms of Service & User Agreement",
+    "Privacy Policy & Data Security Plan",
+    "Founder / Co-founder Agreement",
+    "Non-Disclosure Agreement (NDA)"
+  ],
+  "registrations": [
+    { "name": "Tax ID / GST Registration", "reason": "Tax compliance for billing", "priority": "High" },
+    { "name": "Trademark Registration", "reason": "Brand protection", "priority": "Medium" }
+  ]
+}
+
+7. "pitchDeck":
+{
+  "problem": "string",
+  "solution": "string",
+  "market": "TAM: $50B | SAM: $5B | Target: $500M",
+  "businessModel": "string",
+  "traction": "string",
+  "team": "string",
+  "ask": "Raising $500K seed round"
+}
+`.trim()
+}
+
+/**
+ * Call the Gemini API using @google/genai.
+ * Returns parsed JSON startup kit object.
+ */
+async function callGemini(formData) {
+  if (!GoogleGenAI) {
+    throw new Error('@google/genai library is not available')
+  }
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: buildPrompt(formData),
+    config: {
+      responseMimeType: 'application/json',
+    },
+  })
+
+  const text = response.text || ''
+  const cleaned = text.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()
+  const kit = JSON.parse(cleaned)
+
+  // Attach aliases for backward compatibility across all frontend components
+  if (kit.websiteContent && !kit.website) kit.website = kit.websiteContent
+  if (kit.website && !kit.websiteContent) kit.websiteContent = kit.website
+
+  return kit
+}
+
+/**
+ * Structured fallback kit used when:
+ *   - GEMINI_API_KEY is not set
+ *   - Gemini call fails
+ *   - Running in a dev/test environment without AI
+ *
+ * This allows the frontend to be tested end-to-end without needing
+ * a live AI response. Member 3 will replace the real logic above.
+ */
+function buildFallbackKit(formData) {
+  const name = formData.idea
+    ? formData.idea.split(' ').slice(0, 2).join('') + 'AI'
+    : 'StartupForge'
+
+  const fallback = {
+    businessPlan: {
+      executiveSummary: `${name} is an innovative ${formData.industry || 'technology'} startup targeting ${formData.targetAudience || 'general consumers'} with a budget of ${formData.budget || 'TBD'}.`,
+      problemStatement: `Current solutions in the ${formData.industry || 'market'} are inefficient, expensive, or inaccessible to the target audience.`,
+      solutionSummary: `${name} provides a seamless, affordable, and scalable solution that directly addresses these pain points.`,
+      mission: `To empower ${formData.targetAudience || 'users'} with cutting-edge ${formData.industry || 'technology'} solutions.`,
+      vision: `To become the leading ${formData.industry || 'technology'} platform globally by 2030.`,
+      problem: `Current solutions in the ${formData.industry || 'market'} are inefficient, expensive, or inaccessible to the target audience.`,
+      solution: `${name} provides a seamless, affordable, and scalable solution that directly addresses these pain points.`,
+      marketAnalysis: {
+        targetMarket: formData.targetAudience || 'General consumers',
+        marketSize: 'TAM: $50B | SAM: $5B | SOM: $500M',
+        competitiveAdvantage: 'First-mover advantage in AI automation'
+      },
+      competitorAnalysis: 'Legacy software providers lack modern AI integration and high usability.',
+      swot: {
+        strengths: ['Proprietary AI model', 'Agile development team', 'Low operational overhead'],
+        weaknesses: ['Brand awareness building', 'Initial capital constraints'],
+        opportunities: ['Rapidly expanding market demand', 'Strategic B2B partnerships'],
+        threats: ['Potential new market entrants', 'Regulatory policy changes']
+      },
+      revenueModel: `${formData.businessType === 'saas' ? 'Monthly & annual SaaS subscriptions with tiered pricing.' : 'Direct sales, partnerships, and premium service tiers.'}`,
+      growthStrategy: 'Phase 1: MVP launch & early adopters. Phase 2: Marketing scale-up & partnerships. Phase 3: Geographic expansion.',
+      milestones: [
+        { title: 'MVP Launch', timeline: 'Month 1-2', status: 'Planned' },
+        { title: 'First 100 Users', timeline: 'Month 3', status: 'Planned' },
+        { title: 'Revenue Positive', timeline: 'Month 6', status: 'Planned' },
+        { title: 'Series A Funding', timeline: 'Month 12', status: 'Planned' },
+      ],
+      conclusion: `${name} is positioned to capture a significant share of the market through rapid execution and a customer-first approach.`,
+    },
+    branding: {
+      name,
+      tagline: `Innovating ${formData.industry || 'the future'}, one step at a time.`,
+      brandStory: `Founded with a mission to revolutionize ${formData.industry || 'the market'}, ${name} brings together AI technology and user-centric design.`,
+      mission: `To empower ${formData.targetAudience || 'users'} with cutting-edge ${formData.industry || 'technology'} solutions.`,
+      coreValues: ['Innovation', 'Transparency', 'Customer First', 'Scalability'],
+      values: ['Innovation', 'Transparency', 'Customer First', 'Scalability'],
+      primaryColors: [
+        { name: 'Indigo Blue', hex: '#4F46E5' },
+        { name: 'Royal Blue', hex: '#2563EB' },
+        { name: 'Slate Navy', hex: '#0F172A' }
+      ],
+      secondaryColors: [
+        { name: 'Amber Gold', hex: '#F59E0B' },
+        { name: 'Emerald Green', hex: '#10B981' },
+        { name: 'Muted Slate', hex: '#64748B' }
+      ],
+      colors: { primary: '#6366F1', secondary: '#8B5CF6', accent: '#F59E0B' },
+      brandVoice: 'Authoritative, clear, and empowering',
+      brandPersonality: 'Innovative, trustworthy, and visionary',
+      targetEmotion: 'Confidence, security, and excitement',
+      typography: {
+        headingFont: 'Inter / Outfit (Bold Sans-Serif)',
+        bodyFont: 'Plus Jakarta Sans (Clean Legible)',
+        recommendation: 'Use Inter for bold headlines and Plus Jakarta Sans for body copy.'
+      },
+    },
+    websiteContent: {
+      hero: {
+        title: `The Future of ${formData.industry || 'Business'} Starts Here`,
+        subtitle: `${name} helps you ${formData.idea || 'achieve your goals'} faster than ever before.`,
+        ctaText: 'Get Started Free'
+      },
+      heroHeadline: `The Future of ${formData.industry || 'Business'} Starts Here`,
+      heroSubtitle: `${name} helps you ${formData.idea || 'achieve your goals'} faster than ever before.`,
+      about: `Founded with a mission to transform ${formData.industry || 'the industry'}, ${name} brings together expert engineering and bold vision.`,
+      aboutSection: `Founded with a mission to transform ${formData.industry || 'the industry'}, ${name} brings together expert engineering and bold vision.`,
+      services: [
+        { title: 'AI-Powered Automation', desc: 'Leverage intelligent automation to stay ahead of competition.' },
+        { title: 'Lightning Performance', desc: 'Built for speed and reliability at scale.' },
+        { title: 'Enterprise Security', desc: 'Bank-grade encryption baked in from day one.' }
+      ],
+      features: [
+        { title: 'AI-Powered', description: 'Leverage intelligent automation to stay ahead of the competition.' },
+        { title: 'Lightning Fast', description: 'Built for speed and reliability at any scale.' },
+        { title: 'Secure by Default', description: 'Enterprise-grade security baked in from day one.' },
+      ],
+      cta: {
+        heading: 'Ready to get started?',
+        subheading: 'Join thousands of early adopters building with us.',
+        buttonLabel: 'Start Free Trial'
+      },
+      testimonials: [
+        { text: 'This platform completely transformed our launch timeline!', name: 'Sarah Jenkins', role: 'Founder & CEO' }
+      ],
+      contact: { email: 'contact@startupforge.io' },
+      footerContent: '© 2026 StartupForge. All rights reserved.'
+    },
+    marketing: {
+      targetAudience: formData.targetAudience || 'General consumers and SMBs',
+      marketingStrategy: 'Inbound content marketing combined with targeted social ad campaigns.',
+      socialMedia: [
+        'LinkedIn: Post 3x weekly case studies and industry statistics',
+        'Twitter/X: Daily threads on product updates and startup tips',
+        'Instagram: Visual carousels and founder storytelling'
+      ],
+      emailCampaign: [
+        'Welcome Drip: Immediate onboard email with demo video',
+        'Value Pitch: Day 3 email showcasing top 3 feature benefits',
+        'Special Offer: Day 7 email with 20% discount on annual plan'
+      ],
+      contentStrategy: 'SEO-driven technical blogs, video tutorials, and founder interview podcasts.',
+      seoStrategy: 'Target long-tail transactional keywords with high buying intent.',
+      growthHacks: [
+        'Product Hunt launch with custom referral bonus',
+        'Direct LinkedIn outreach to top 100 industry consultants',
+        'Free micro-tool widget for viral backlink generation'
+      ],
+      launchPlan: '30-day pre-launch waitlist push followed by public v1 launch.',
+      customerAcquisition: 'Organic search (SEO), direct sales, and influencer partnerships.',
+      kpis: ['Monthly Active Users (MAU)', 'Customer Acquisition Cost (CAC)', 'Monthly Recurring Revenue (MRR)'],
+      timeline: 'Months 1-3: MVP Launch & Beta. Months 4-6: Scaling acquisition.',
+      channels: [
+        { name: 'Social Media', strategy: 'Weekly content on LinkedIn, Instagram & X targeting early adopters.' },
+        { name: 'Content Marketing', strategy: 'SEO-driven blog and video tutorials to build organic traffic.' },
+        { name: 'Paid Ads', strategy: 'Google Ads & Meta Ads targeting high-intent keywords.' },
+      ],
+      launchChecklist: [
+        'Set up social media profiles',
+        'Launch landing page with email capture',
+        'Reach out to 50 beta users',
+        'Submit to Product Hunt',
+        'Launch email drip campaign',
+      ],
+      keywords: [`${formData.industry} startup`, `best ${formData.industry} app`, `${formData.targetAudience} tools`],
+      adCampaigns: [
+        { name: 'Launch Campaign', platform: 'Google Ads', budget: '$500/month' },
+        { name: 'Awareness Campaign', platform: 'Meta Ads', budget: '$300/month' },
+      ],
+    },
+    finance: {
+      investment: 500000,
+      pricePerUnit: 250,
+      monthlyCustomers: 800,
+      monthlyExpenses: 120000,
+      employeeCount: 2,
+      costPerEmployee: 25000,
+      monthlyGrowthRate: 8,
+      fundingNeeded: 500000,
+      revenue: 200000,
+      expenses: 120000,
+      profit: 80000,
+      breakEven: '7 Months',
+      breakEvenMonths: '7 Months',
+      roiEstimated: '192% Annual ROI',
+      roiPercentage: 192,
+      projections: [
+        { month: 'Month 1', customers: 800, revenue: 200000, expenses: 120000, profit: 80000 },
+        { month: 'Month 2', customers: 864, revenue: 216000, expenses: 125000, profit: 91000 },
+        { month: 'Month 3', customers: 933, revenue: 233250, expenses: 130000, profit: 103250 },
+        { month: 'Month 4', customers: 1007, revenue: 251750, expenses: 135000, profit: 116750 },
+        { month: 'Month 5', customers: 1088, revenue: 272000, expenses: 140000, profit: 132000 },
+        { month: 'Month 6', customers: 1175, revenue: 293750, expenses: 145000, profit: 148750 },
+      ],
+      revenueProjections: [
+        { month: 'Month 1', revenue: 200000, expenses: 120000, profit: 80000 },
+        { month: 'Month 2', revenue: 216000, expenses: 125000, profit: 91000 },
+        { month: 'Month 3', revenue: 233250, expenses: 130000, profit: 103250 },
+        { month: 'Month 4', revenue: 251750, expenses: 135000, profit: 116750 },
+        { month: 'Month 5', revenue: 272000, expenses: 140000, profit: 132000 },
+        { month: 'Month 6', revenue: 293750, expenses: 145000, profit: 148750 },
+      ],
+      costDistribution: [
+        { name: 'Employee Salaries', value: 50000 },
+        { name: 'Marketing & CAC', value: 35000 },
+        { name: 'Operations & Logistics', value: 20000 },
+        { name: 'Tech Infrastructure', value: 10000 },
+        { name: 'Legal & Admin', value: 5000 },
+      ],
+      investmentAllocation: [
+        { name: 'Product Development', value: 175000 },
+        { name: 'Launch Marketing', value: 125000 },
+        { name: 'Working Capital Reserve', value: 100000 },
+        { name: 'Licenses & Legal', value: 50000 },
+        { name: 'Equipment & Hardware', value: 50000 },
+      ],
+      yearlyProjection: { year1: 2400000, year2: 3840000, year3: 6720000 },
+      unitEconomics: { cac: '₹350', ltv: '₹2,800', margin: '40%' },
+    },
+    compliance: {
+      checklist: [
+        {
+          id: 'gst',
+          title: 'GST Registration',
+          reason: 'Mandatory for statutory tax compliance and selling products or services across state lines.',
+          requiredDocs: ['PAN Card of Founder/Entity', 'Incorporation Certificate', 'Bank Account Cancelled Cheque', 'Premises Address Proof'],
+          estimatedFee: '₹0 (Govt Fee)',
+          processingTime: '3 - 7 Business Days',
+          priority: 'High',
+          status: 'Pending',
+        },
+        {
+          id: 'fssai',
+          title: 'FSSAI License / Registration',
+          reason: 'Food safety and standards certification mandatory for any food production, distribution, or delivery venture.',
+          requiredDocs: ['Founder Aadhaar & PAN', 'Address Proof of Kitchen/Store', 'Food Safety Plan'],
+          estimatedFee: '₹100 - ₹7,500',
+          processingTime: '7 - 30 Business Days',
+          priority: 'High',
+          status: 'Pending',
+        },
+        {
+          id: 'msme',
+          title: 'MSME / Udyam Registration',
+          reason: 'Eligible for government benefits, interest subsidies on bank credit, and collateral-free loans.',
+          requiredDocs: ['Aadhaar Card', 'PAN Card'],
+          estimatedFee: '₹0 (Free on Govt Portal)',
+          processingTime: '1 - 2 Business Days',
+          priority: 'Medium',
+          status: 'Pending',
+        },
+      ],
+      governmentRegistrations: [
+        { title: 'GST Registration', status: 'Pending', priority: 'High', fee: '₹0', time: '3-7 Days' },
+        { title: 'MSME Registration', status: 'Pending', priority: 'Medium', fee: '₹0', time: '1-2 Days' },
+      ],
+      registrations: [
+        { name: 'Tax ID / GST Registration', reason: 'Tax compliance for billing', priority: 'High' },
+        { name: 'Trademark Registration', reason: 'Brand protection', priority: "Medium" }
+      ],
+      licenses: [
+        'Shop & Establishment Registration',
+        'Local Municipal Health & Trade License',
+      ],
+      legalDocs: [
+        'Terms of Service & User Agreement',
+        'Privacy Policy & Data Security Plan',
+        'Founder / Co-founder Agreement',
+        'Non-Disclosure Agreement (NDA)',
+      ],
+      registrationSteps: [
+        'Incorporate Business Entity (Pvt Ltd / LLP / OPC)',
+        'Apply for Company PAN & Corporate Net Banking',
+        'Obtain GST & Industry-Specific Registrations',
+      ],
+      legalRecommendations: 'Ensure GST registration and legal entity formation are completed prior to launch.',
+    },
+    pitchDeck: {
+      problem: `${formData.targetAudience || 'Users'} in the ${formData.industry || 'market'} face significant challenges with existing solutions that are too slow, costly, or complex.`,
+      solution: `${name} solves this with a ${formData.businessType || 'product'} that is fast, affordable, and easy to use.`,
+      market: `Total Addressable Market: $50B | Serviceable Market: $5B | Target: $500M in 3 years.`,
+      businessModel: `${formData.businessType === 'saas' ? 'SaaS subscription: $29/month (Starter), $99/month (Pro), $299/month (Enterprise).' : 'Revenue through direct sales, commissions, and premium features.'}`,
+      traction: 'Pre-launch: 200 waitlist signups, 5 LOI from enterprise clients, 3 strategic partnerships.',
+      team: 'Experienced team of founders with backgrounds in tech, business, and design.',
+      ask: `Raising $500K seed round to fund 12 months of product development, team growth, and initial marketing.`,
+    },
+  }
+
+  fallback.website = fallback.websiteContent
+
+  return fallback
+}
+
+/**
+ * Main exported function — called by startupController.
+ *
+ * @param {object} formData - { idea, industry, budget, businessType, targetAudience, location }
+ * @returns {object} - Full structured startup kit
+ */
+const generateStartupKit = async (formData) => {
+  // Use Gemini only when API key is available
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' && GoogleGenAI) {
+    try {
+      console.log('[AI Service] Calling Gemini API (gemini-2.5-flash)...')
+      const kit = await callGemini(formData)
+      console.log('[AI Service] Gemini response received ✅')
+      return kit
+    } catch (error) {
+      console.warn('[AI Service] Gemini call failed, using fallback:', error.message)
+    }
+  } else {
+    console.log('[AI Service] GEMINI_API_KEY not set — using structured fallback kit (dev mode)')
+  }
+
+  // Fallback: return structured mock data
+  return buildFallbackKit(formData)
+}
+
+module.exports = { generateStartupKit }

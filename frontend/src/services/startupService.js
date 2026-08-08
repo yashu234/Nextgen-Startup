@@ -13,7 +13,7 @@ const startupService = {
   async generate(formData) {
     try {
       const response = await apiClient.post(API_ENDPOINTS.GENERATE, formData)
-      return response.data
+      return response.data?.data ?? response.data
     } catch (error) {
       if (isNetworkError(error)) {
         throw unavailableError()

@@ -9,6 +9,7 @@ import Button from '../../components/Button'
 import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function Branding() {
   const { result, generateKit, isGenerating, error } = useStartup()
@@ -60,6 +61,19 @@ export default function Branding() {
     setTimeout(() => setCopiedField(null), 2000)
   }
 
+  function handleDownloadPDF() {
+    if (!result) {
+      toast.error('No startup kit loaded to export.')
+      return
+    }
+    try {
+      generateStartupKitPDF(result)
+      toast.success('Brand Kit PDF downloaded!')
+    } catch (err) {
+      toast.error('Failed to generate PDF: ' + err.message)
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Breadcrumb & Top Bar */}
@@ -86,7 +100,7 @@ export default function Branding() {
             <Button variant="outline" size="sm" icon={RefreshCw} loading={isGenerating} onClick={generateKit}>
               Regenerate
             </Button>
-            <Button variant="primary" size="sm" icon={Download} onClick={() => window.print()}>
+            <Button variant="primary" size="sm" icon={Download} onClick={handleDownloadPDF}>
               Export Brand Kit
             </Button>
           </div>

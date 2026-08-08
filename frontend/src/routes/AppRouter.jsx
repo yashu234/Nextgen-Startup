@@ -20,6 +20,7 @@ const Marketing = lazy(() => import('../pages/Marketing'))
 const Finance = lazy(() => import('../pages/Finance'))
 const Compliance = lazy(() => import('../pages/Compliance'))
 const PitchDeck = lazy(() => import('../pages/PitchDeck'))
+const News = lazy(() => import('../pages/News'))
 const History = lazy(() => import('../pages/History'))
 const Profile = lazy(() => import('../pages/Profile'))
 const Settings = lazy(() => import('../pages/Settings'))
@@ -52,6 +53,7 @@ export default function AppRouter() {
             <Route path={ROUTES.FINANCE} element={<Finance />} />
             <Route path={ROUTES.COMPLIANCE} element={<Compliance />} />
             <Route path={ROUTES.PITCH_DECK} element={<PitchDeck />} />
+            <Route path={ROUTES.NEWS} element={<News />} />
             <Route path={ROUTES.HISTORY} element={<History />} />
             <Route path={ROUTES.PROFILE} element={<Profile />} />
             <Route path={ROUTES.SETTINGS} element={<Settings />} />

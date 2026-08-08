@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { History as HistoryIcon, Trash2, FolderOpen, Download, RefreshCw, Eye } from 'lucide-react'
+import { History as HistoryIcon, Trash2, FolderOpen, Download, RefreshCw, Eye, Loader } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
 import { useToast } from '../../context/ToastContext'
 import historyService from '../../services/historyService'
@@ -14,6 +14,7 @@ import { SkeletonCard } from '../../components/Loader'
 import { parseApiError, formatRelativeTime } from '../../utils/formatters'
 import ErrorState from '../../components/ErrorState'
 import useAsync from '../../hooks/useAsync'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function History() {
   const { setResult, generateKit } = useStartup()
@@ -32,6 +33,9 @@ export default function History() {
   // Delete modal state
   const [targetDeleteId, setTargetDeleteId] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+
+  // Download state — tracks which item ID is currently being downloaded
+  const [downloadingId, setDownloadingId] = useState(null)
 
   const { isLoading: loading, data: historyItemsData, error: loadError, execute: loadHistory } = useAsync(historyService.getAll)
 
@@ -76,6 +80,20 @@ export default function History() {
     setResult(item)
     await generateKit()
     navigate(ROUTES.BUSINESS_PLAN)
+  }
+
+  async function handleDownloadPDF(id) {
+    if (downloadingId) return // prevent double-click
+    setDownloadingId(id)
+    try {
+      const fullKit = await historyService.getById(id)
+      generateStartupKitPDF(fullKit)
+      toast.success('Startup Kit PDF downloaded!')
+    } catch (error) {
+      toast.error('Failed to download PDF: ' + parseApiError(error))
+    } finally {
+      setDownloadingId(null)
+    }
   }
 
   // Filter & Sort Logic
@@ -232,11 +250,14 @@ export default function History() {
                       <RefreshCw size={15} />
                     </button>
                     <button
-                      onClick={() => window.print()}
+                      onClick={() => handleDownloadPDF(item._id)}
+                      disabled={downloadingId === item._id}
                       title="Download PDF"
-                      className="p-1.5 text-slate-400 hover:text-slate-700 rounded"
+                      className="p-1.5 text-slate-400 hover:text-blue-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Download size={15} />
+                      {downloadingId === item._id
+                        ? <Loader size={15} className="animate-spin" />
+                        : <Download size={15} />}
                     </button>
                     <button
                       onClick={() => confirmDelete(item._id)}
