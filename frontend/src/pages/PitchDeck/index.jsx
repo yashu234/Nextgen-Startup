@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Presentation, ChevronLeft, ChevronRight, Download, Maximize2, Minimize2, ArrowLeft,
-  RefreshCw, Sparkles, MessageSquare, ShieldAlert, Award, FileCheck, Edit3, Send, Check, Play
+  RefreshCw, Sparkles, MessageSquare, ShieldAlert, Award, FileCheck, Edit3, Send, Play
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
 import { useToast } from '../../context/ToastContext'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
-import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
 import { PITCH_DECK_MODULE_DATA } from '../../data/mockModuleData'
@@ -117,7 +116,9 @@ export default function PitchDeck() {
           speakerNotes: 'State funding requirement clearly along with milestone goals.'
         }
       ]
-      setSlides(customSlides)
+      queueMicrotask(() => {
+        setSlides(customSlides)
+      })
     }
   }, [result])
 

@@ -11,7 +11,6 @@ import Card from '../../components/Card'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
 import { NEWS_INTELLIGENCE_DATA } from '../../data/mockModuleData'
-import { formatCurrency } from '../../utils/formatters'
 import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 
 export default function NewsIntelligence() {

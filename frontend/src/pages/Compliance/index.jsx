@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Shield, FileCheck, ArrowLeft, Download, RefreshCw, AlertCircle, FileText,
-  Search, Plus, Trash2, Edit, ExternalLink, CheckCircle, Clock, Sparkles, Filter,
+  Shield, FileCheck, ArrowLeft, Download, RefreshCw,
+  Search, Plus, Trash2, ExternalLink, Sparkles,
   Award, Calendar, AlertTriangle
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
@@ -11,7 +11,6 @@ import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
 import Input from '../../components/Input'
-import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
 import { COMPLIANCE_DATA } from '../../data/mockModuleData'
@@ -64,7 +63,9 @@ export default function Compliance() {
           status: lic.status || 'Active',
         }
       })
-      setLicenses(formatted)
+      queueMicrotask(() => {
+        setLicenses(formatted)
+      })
     }
   }, [result])
 

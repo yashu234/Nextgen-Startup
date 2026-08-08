@@ -2,8 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, DollarSign, PieChart as PieChartIcon, ArrowLeft, Download, RefreshCw,
-  Calculator, AlertTriangle, CheckCircle, HelpCircle, Send, Sparkles, MessageSquare,
-  BarChart3, Percent, ShieldAlert, ArrowUpRight, ShieldCheck, Wallet
+  Calculator, Send, Sparkles, MessageSquare, BarChart3, Percent, ShieldCheck, Wallet
 } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
 import { useToast } from '../../context/ToastContext'
@@ -11,10 +10,8 @@ import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 import { ROUTES } from '../../constants/routes'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
-import Input from '../../components/Input'
 import { RevenueExpenseChart, CostDistributionChart, ProfitBarChart } from '../../components/Charts'
 import { formatCurrency } from '../../utils/formatters'
-import EmptyState from '../../components/EmptyState'
 import ErrorState from '../../components/ErrorState'
 import { SkeletonCard } from '../../components/Loader'
 import { INITIAL_FINANCE_DATA } from '../../data/mockModuleData'
@@ -60,8 +57,9 @@ export default function Finance() {
 
   // Sync state with AI generated finance kit if available
   useEffect(() => {
-    if (result?.finance) {
-      const fin = result.finance
+    if (!result?.finance) return
+    const fin = result.finance
+    queueMicrotask(() => {
       if (fin.pricePerUnit || fin.monthlyCustomers) {
         setForecastInputs((prev) => ({
           ...prev,
@@ -79,7 +77,7 @@ export default function Finance() {
           officeRent: Math.round(exp * 0.1),
         })
       }
-    }
+    })
   }, [result])
 
   // Calculations for Cost Estimator
@@ -185,7 +183,6 @@ export default function Finance() {
     const progressPercent = Math.min(100, Math.round((currentRevenue / (breakEvenRevenue || 1)) * 100))
 
     let monthsToBreakEven = 1
-    let tempRev = calculatedForecast.monthlyData[0]?.revenue || 0
     for (let i = 0; i < calculatedForecast.monthlyData.length; i++) {
       if (calculatedForecast.monthlyData[i].revenue >= fixedCostsMonthly) {
         monthsToBreakEven = i + 1

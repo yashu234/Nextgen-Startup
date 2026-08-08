@@ -71,7 +71,9 @@ apiClient.interceptors.response.use(
         clearStoredAuth()
         try {
           window.dispatchEvent(new Event('sf_logout'))
-        } catch {}
+        } catch {
+          // ignore dispatch event failure if window is unmounting
+        }
         if (window.location.pathname !== '/login') {
           window.location.href = '/login'
         }

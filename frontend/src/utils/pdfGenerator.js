@@ -47,7 +47,7 @@ export function generateStartupKitPDF(kitData) {
   const comp        = kitData.compliance   || {}
   const pitch       = kitData.pitchDeck    || {}
 
-  let y = 15
+  let y
 
   // ── Helper: Page header ───────────────────────────────────────────────────
   function addHeader(title) {
