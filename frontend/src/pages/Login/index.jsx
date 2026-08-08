@@ -39,8 +39,8 @@ export default function Login() {
 
     setLoading(true)
     try {
-      const { token, user } = await authService.login(values.email, values.password)
-        login(token, user, rememberMe)
+      const { user } = await authService.login(values.email, values.password)
+      login(user, rememberMe)
       toast.success(`Welcome back, ${user.name}!`)
       navigate(redirectTo, { replace: true })
     } catch (error) {

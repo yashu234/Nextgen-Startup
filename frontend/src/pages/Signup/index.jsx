@@ -40,12 +40,12 @@ export default function Signup() {
 
     setLoading(true)
     try {
-      const { token, user } = await authService.signup(
+      const { user } = await authService.signup(
         values.name,
         values.email,
         values.password
       )
-      login(token, user)
+      login(user)
       toast.success(`Welcome to Startup Forge, ${user.name}! 🚀`)
       navigate(ROUTES.DASHBOARD, { replace: true })
     } catch (error) {
