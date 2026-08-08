@@ -30,13 +30,16 @@ const { validateFields } = require('../middleware/validateMiddleware')
 // ── Optional auth helper ───────────────────────────────────────────────────
 // Does not reject unauthenticated users — just attaches req.user if valid
 const optionalAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return next()
+  let token = req.cookies?.accessToken
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1]
+  }
+  if (!token) return next()
 
   const jwt = require('jsonwebtoken')
   try {
-    const token = authHeader.split(' ')[1]
-    req.user = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded
   } catch {
     // Invalid token — treat as unauthenticated, don't block the request
   }

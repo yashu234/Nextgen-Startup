@@ -1,4 +1,4 @@
-// React hooks not required here
+import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Megaphone, Search, Share2, Mail, FileText, ArrowLeft, Download, RefreshCw, Zap, Users, Target, Rocket, BarChart2, Calendar } from 'lucide-react'
 import { useStartup } from '../../context/StartupContext'
@@ -16,7 +16,30 @@ export default function Marketing() {
   const { toast } = useToast()
   const navigate = useNavigate()
 
-  const mkt = result?.marketing
+  const rawMkt = result?.marketing
+
+  const mkt = useMemo(() => {
+    if (!rawMkt) return null
+    return {
+      targetAudience: rawMkt.targetAudience || result?.businessPlan?.marketAnalysis?.targetMarket || 'Target audience looking for innovative startup solutions.',
+      marketingStrategy: rawMkt.marketingStrategy || 'Multi-channel digital strategy combining SEO, social media outreach, and direct sales.',
+      socialMedia: Array.isArray(rawMkt.socialMedia) && rawMkt.socialMedia.length
+        ? rawMkt.socialMedia
+        : (rawMkt.channels?.map(c => `${c.name}: ${c.strategy}`) || ['LinkedIn: Weekly case studies', 'Twitter/X: Founder updates', 'Instagram: Visual branding']),
+      emailCampaign: Array.isArray(rawMkt.emailCampaign) && rawMkt.emailCampaign.length
+        ? rawMkt.emailCampaign
+        : ['Welcome Series: Onboarding & demo', 'Value Pitch: Product features', 'Special Offer: Conversion discount'],
+      contentStrategy: rawMkt.contentStrategy || 'SEO technical blog posts, video tutorials, and industry case studies.',
+      seoStrategy: rawMkt.seoStrategy || 'Targeting high-intent transactional long-tail keywords.',
+      growthHacks: Array.isArray(rawMkt.growthHacks) && rawMkt.growthHacks.length
+        ? rawMkt.growthHacks
+        : ['Product Hunt launch', 'Referral reward program', 'Direct B2B outreach'],
+      launchPlan: rawMkt.launchPlan || '30-day waitlist push followed by public launch.',
+      customerAcquisition: rawMkt.customerAcquisition || 'Inbound organic search, referral program, and direct sales outreach.',
+      kpis: Array.isArray(rawMkt.kpis) && rawMkt.kpis.length ? rawMkt.kpis : ['Customer Acquisition Cost (CAC)', 'Monthly Recurring Revenue (MRR)', 'Active Users (MAU)'],
+      timeline: rawMkt.timeline || 'Months 1-3: MVP Launch & Beta. Months 4-6: Growth & Scaling.',
+    }
+  }, [rawMkt, result])
 
   if (isGenerating) {
     return (

@@ -34,6 +34,29 @@ export const DEFAULT_DEMO_KIT = {
     ],
   },
   marketing: {
+    targetAudience: 'Urban consumers, working professionals, students, and local households looking for fresh, affordable food delivery.',
+    marketingStrategy: 'Hyper-local digital marketing, influencer reviews, Google Local SEO, and word-of-mouth referral incentives.',
+    socialMedia: [
+      'Instagram & Reels: Highlighting daily kitchen hygiene, chef recipes, and local food reviews.',
+      'YouTube Shorts: Behind-the-scenes cloud kitchen operations and customer reaction clips.',
+      'Facebook & Community Groups: Targeted apartment complex deals and weekend family combos.',
+    ],
+    emailCampaign: [
+      'Welcome Offer: ₹100 off on first 3 orders upon sign-up.',
+      'Weekly Menu Drop: Sunday email newsletter announcing special chef dishes.',
+      'Win-back Campaign: Special combo offer for users inactive for 14+ days.',
+    ],
+    contentStrategy: 'Hyper-local food blogging, healthy meal tips, recipe reels, and customer spotlight stories.',
+    seoStrategy: 'Target localized intent keywords such as "healthy cloud kitchen near me", "home style tiffin delivery", and "fast food delivery under 25 mins".',
+    growthHacks: [
+      'Give ₹50, Get ₹50 referral loop for existing app users.',
+      'Free office lunch sampling boxes delivered to top 20 corporate IT offices.',
+      'Exclusive QR code coupons printed on food packing boxes for repeat orders.',
+    ],
+    launchPlan: '3-week teaser campaign on Instagram, followed by influencer tasting event and 50% launch day discount.',
+    customerAcquisition: 'Instagram Reels, Google Local Maps SEO, referral program, and direct flyer distribution in gated societies.',
+    kpis: ['Monthly Active Users (MAU)', 'Customer Acquisition Cost (CAC ≤ ₹150)', 'Repeat Order Rate (≥ 45%)', 'Monthly Recurring Revenue (MRR)'],
+    timeline: 'Month 1: Teaser & Influencer Sampling. Month 2: Hyper-local Ads & Referral Push. Months 3-6: Retention & Expansion.',
     channels: [
       { name: 'Instagram & Reels', strategy: 'Hyper-local food influencer reviews and behind-the-scenes kitchen videos.' },
       { name: 'Google Local & Maps SEO', strategy: 'Targeting "food delivery near me" and local office lunch keywords.' },
@@ -216,6 +239,27 @@ function startupReducer(state, action) {
   }
 }
 
+function saveToLocalHistory(kit, formData = {}) {
+  try {
+    const existing = JSON.parse(localStorage.getItem('sf_local_history') || '[]')
+    const newItem = {
+      _id: kit._projectId || `local_${Date.now()}`,
+      idea: formData.idea || kit._idea || kit.businessPlan?.executiveSummary || kit.branding?.name || 'Untitled Project',
+      industry: formData.industry || kit._industry || 'General',
+      budget: formData.budget || kit._budget || 'TBD',
+      businessType: formData.businessType || kit._businessType || 'General',
+      createdAt: new Date().toISOString(),
+      branding: kit.branding || null,
+      businessPlan: kit.businessPlan || null,
+      generatedResult: kit,
+    }
+    const updated = [newItem, ...existing.filter((i) => i._id !== newItem._id)].slice(0, 20)
+    localStorage.setItem('sf_local_history', JSON.stringify(updated))
+  } catch (e) {
+    console.error('Error saving local history', e)
+  }
+}
+
 export function StartupProvider({ children }) {
   const [state, dispatch] = useReducer(startupReducer, initialState)
 
@@ -228,6 +272,7 @@ export function StartupProvider({ children }) {
     try {
       const result = await startupService.generate(state.formData)
       localStorage.setItem(STORAGE_KEYS.LAST_RESULT, JSON.stringify(result))
+      saveToLocalHistory(result, state.formData)
       dispatch({ type: 'GENERATE_SUCCESS', payload: result })
       return { success: true, data: result }
     } catch (error) {
@@ -239,6 +284,7 @@ export function StartupProvider({ children }) {
 
   const setResult = useCallback((result) => {
     localStorage.setItem(STORAGE_KEYS.LAST_RESULT, JSON.stringify(result))
+    saveToLocalHistory(result)
     dispatch({ type: 'SET_RESULT', payload: result })
   }, [])
 

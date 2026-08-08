@@ -74,9 +74,6 @@ apiClient.interceptors.response.use(
         } catch {
           // ignore dispatch event failure if window is unmounting
         }
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login'
-        }
         return Promise.reject(err)
       }
     } else if (import.meta.env.DEV) {

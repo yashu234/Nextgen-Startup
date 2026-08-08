@@ -65,11 +65,40 @@ const limiter = rateLimit({
 // Apply limiter to all API routes
 app.use('/api', limiter)
 
-// Data sanitization against NoSQL query injection
-app.use(mongoSanitize())
+// Express 5 compatible Data sanitization against NoSQL query injection ($ and . keys)
+app.use((req, res, next) => {
+  const sanitize = (obj) => {
+    if (!obj || typeof obj !== 'object') return
+    for (const key in obj) {
+      if (key.startsWith('$') || key.includes('.')) {
+        delete obj[key]
+      } else if (typeof obj[key] === 'object') {
+        sanitize(obj[key])
+      }
+    }
+  }
+  if (req.body) sanitize(req.body)
+  if (req.params) sanitize(req.params)
+  next()
+})
 
-// Data sanitization against XSS
-app.use(xss())
+// Express 5 compatible Data sanitization against XSS
+app.use((req, res, next) => {
+  const clean = (val) => {
+    if (typeof val === 'string') {
+      return val.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    }
+    if (val && typeof val === 'object') {
+      for (const k in val) {
+        val[k] = clean(val[k])
+      }
+    }
+    return val
+  }
+  if (req.body) clean(req.body)
+  if (req.params) clean(req.params)
+  next()
+})
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp())
