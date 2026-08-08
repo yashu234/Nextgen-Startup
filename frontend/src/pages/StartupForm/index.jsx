@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lightbulb, Building2, MapPin, ChevronRight, ChevronLeft } from 'lucide-react'
-import { useStartup } from '../../context/StartupContext'
+import { useStartup, DEFAULT_DEMO_KIT } from '../../context/StartupContext'
 import { useToast } from '../../context/ToastContext'
 import { validateStartupForm } from '../../utils/validators'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 import { ROUTES } from '../../constants/routes'
 import { INDUSTRIES, BUSINESS_TYPES, BUDGET_RANGES, TARGET_AUDIENCES, FORM_STEPS } from '../../constants'
 import { Input, Textarea, Select } from '../../components/Input'
@@ -72,6 +73,15 @@ export default function StartupForm() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }))
   }
 
+  function handleDownloadSample() {
+    try {
+      generateStartupKitPDF(DEFAULT_DEMO_KIT)
+      toast.success('Downloaded Sample Startup Kit PDF successfully!')
+    } catch (err) {
+      toast.error('Failed to download sample PDF: ' + err.message)
+    }
+  }
+
   function validateStep() {
     const allErrors = validateStartupForm(formData)
     const stepFields = {
@@ -117,11 +127,21 @@ export default function StartupForm() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Generate Your Startup Kit</h1>
-        <p className="text-slate-500 mt-1">
-          Fill in the details below and we&apos;ll build your complete launch kit.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Generate Your Startup Kit</h1>
+          <p className="text-slate-500 mt-1">
+            Fill in the details below and we&apos;ll build your complete launch kit.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownloadSample}
+          className="self-start sm:self-center border-blue-200 text-blue-600 hover:bg-blue-50"
+        >
+          Download Judge Sample PDF
+        </Button>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">

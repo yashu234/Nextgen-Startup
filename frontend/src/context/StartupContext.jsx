@@ -5,7 +5,7 @@ import startupService from '../services/startupService'
 
 const StartupContext = createContext(null)
 
-const DEFAULT_DEMO_KIT = {
+export const DEFAULT_DEMO_KIT = {
   _idea: 'Food Delivery & Cloud Kitchen Startup',
   _industry: 'Food & Beverage',
   _budget: '₹5,00,000',

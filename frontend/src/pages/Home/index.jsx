@@ -7,6 +7,9 @@ import {
 } from 'lucide-react'
 import { ROUTES } from '../../constants/routes'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
+import { DEFAULT_DEMO_KIT } from '../../context/StartupContext'
+import { generateStartupKitPDF } from '../../utils/pdfGenerator'
 import Button from '../../components/Button'
 
 const FEATURES = [
@@ -114,10 +117,20 @@ const FAQS = [
 
 export default function Home() {
   const { isAuthenticated } = useAuth()
+  const { toast } = useToast()
   const [openFaq, setOpenFaq] = useState(null)
 
   function toggleFaq(index) {
     setOpenFaq(openFaq === index ? null : index)
+  }
+
+  function handleDownloadSample() {
+    try {
+      generateStartupKitPDF(DEFAULT_DEMO_KIT)
+      toast.success('Downloaded Sample Startup Kit PDF successfully!')
+    } catch (err) {
+      toast.error('Failed to download sample PDF: ' + err.message)
+    }
   }
 
   return (
@@ -147,6 +160,14 @@ export default function Home() {
                 Generate My Startup Kit
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleDownloadSample}
+              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              Download Judge Sample PDF
+            </Button>
             {!isAuthenticated && (
               <Link to={ROUTES.LOGIN}>
                 <Button variant="outline" size="lg">Sign In</Button>
