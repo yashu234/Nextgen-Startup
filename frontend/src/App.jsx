@@ -1,3 +1,4 @@
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AuthProvider } from './context/AuthContext'
 import { StartupProvider } from './context/StartupContext'
 import { ToastProvider } from './context/ToastContext'
@@ -11,6 +12,7 @@ export default function App() {
         <ToastProvider>
           <AppRouter />
           <ToastContainer />
+          <SpeedInsights />
         </ToastProvider>
       </StartupProvider>
     </AuthProvider>
