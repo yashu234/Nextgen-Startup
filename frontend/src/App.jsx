@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import { AuthProvider } from './context/AuthContext'
 import { StartupProvider } from './context/StartupContext'
 import { ToastProvider } from './context/ToastContext'
@@ -11,6 +12,7 @@ export default function App() {
         <ToastProvider>
           <AppRouter />
           <ToastContainer />
+          <Analytics />
         </ToastProvider>
       </StartupProvider>
     </AuthProvider>
